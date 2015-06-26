@@ -54,7 +54,7 @@ LICENSE
 ---------------------
 This extension is licensed under `GNU Library or "Lesser" General Public License (LGPL)`.
 
-Developed by [Cédric Darbon] and packaged by [Charles-Henry Vagner] (https://github.com/cvagner)
+Developed by [Cédric Darbon] (https://twitter.com/cedricdarbon) and packaged by [Charles-Henry Vagner] (https://github.com/cvagner)
 
 
 Our company
