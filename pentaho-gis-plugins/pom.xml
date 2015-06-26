@@ -1,0 +1,219 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.atolcd.pentaho.di</groupId>
+  <artifactId>pentaho-gis-plugins</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Pentaho's Data Integrator GIS Plugins</name>
+  <description>Pentaho's Data Integrator GIS Plugins</description>
+
+  <properties>
+    <pentaho.version>5.4.0.1-130</pentaho.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <license.organizationName>Atol CD</license.organizationName>
+    <license.licenseName>lgpl_v3</license.licenseName>
+    <license.inceptionYear>2015</license.inceptionYear>
+  </properties>
+
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <downloadSources>true</downloadSources>
+          <downloadJavadocs>true</downloadJavadocs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.5.5</version>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/assembly.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>pentaho-releases</id>
+      <url>http://repository.pentaho.org/artifactory/repo/</url>
+    </repository>
+    <repository>
+      <id>lds-main</id>
+      <name>Main Approved LDS Repo</name>
+      <url>http://code.lds.org/nexus/content/groups/main-repo</url>
+    </repository>
+    <repository>
+      <id>maven-us.nuxeo.org</id>
+      <name>maven-us.nuxeo.org</name>
+      <url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>axiomalaska</id>
+      <name>axiomalaska</name>
+      <url>http://nexus.axiomalaska.com/nexus/content/groups/public/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <!-- PDI internals -->
+    <dependency>
+      <groupId>commons-math</groupId>
+      <artifactId>commons-math</artifactId>
+      <version>1.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.7</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>jface</artifactId>
+      <version>3.3.0-I20070606-0010</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>swt</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-core</artifactId>
+      <version>${pentaho.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-engine</artifactId>
+      <version>${pentaho.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-ui-swt</artifactId>
+      <version>${pentaho.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>metastore</artifactId>
+      <version>${pentaho.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ojdbc6</artifactId>
+      <version>11.2.0.1.0</version>
+    </dependency>
+
+    <!-- Plugin specific -->
+    <!-- public repositories -->
+    <dependency>
+      <groupId>org.postgis</groupId>
+      <artifactId>postgis-jdbc</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.13</version>
+    </dependency>
+    <dependency>
+      <groupId>oracle</groupId>
+      <artifactId>sdoapi</artifactId>
+      <version>11.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>oracle</groupId>
+      <artifactId>sdoutl</artifactId>
+      <version>11.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.orbisgis</groupId>
+      <artifactId>cts</artifactId>
+      <version>1.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>de.micromata.jak</groupId>
+      <artifactId>JavaAPIforKml</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+    </dependency>
+    <!-- Atol projects -->
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>concave-hull</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>dxf</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>geojson</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>mifmid</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>shp</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>spatialite</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <organization>
+    <name>Atol CD</name>
+    <url>http://www.atolcd.com</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <email>c.darbon@atolcd.com</email>
+      <organization>Atol CD</organization>
+    </developer>
+    <developer>
+      <email>c.vagner@atolcd.com</email>
+      <organization>Atol CD</organization>
+    </developer>
+  </developers>
+
+</project>

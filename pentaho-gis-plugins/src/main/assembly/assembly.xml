@@ -1,0 +1,58 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+  <id>bin</id>
+  <formats>
+    <!--format>tar.gz</format>
+    <format>tar.bz2</format-->
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/site</directory>
+      <outputDirectory>docs</outputDirectory>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+  <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <scope>runtime</scope>
+      <includes>
+        <include>com.atolcd.pentaho.di:pentaho-gis-plugin</include>
+       </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>/lib</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <scope>runtime</scope>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <excludes>
+        <!-- Atol plugin -->
+        <exclude>com.atolcd.pentaho.di:pentaho-gis-plugin</exclude>	
+        <!-- from  5.4 -->
+        <exclude>pentaho-kettle:kettle-ui-swt</exclude>
+        <exclude>pentaho-kettle:kettle-core</exclude>
+        <exclude>pentaho-kettle:kettle-engine</exclude>
+        <exclude>pentaho:metastore</exclude>
+        <exclude>org.eclipse.swt:org.eclipse.swt.win32.win32.x86_64</exclude>
+        <exclude>org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64</exclude>
+        <!-- Other deps -->
+        <exclude>org.eclipse:jface</exclude>
+        <exclude>commons-math:commons-math</exclude>
+        <!-- Oracle -->
+        <exclude>com.oracle:ojdbc6</exclude>
+        <exclude>com.oracle:orai18n</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
