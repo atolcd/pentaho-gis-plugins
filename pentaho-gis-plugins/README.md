@@ -40,14 +40,14 @@ You can get them [here] (http://www.oracle.com/technetwork/apps-tech/jdbc-112010
 
 Using the plugins
 ---------------------
-You will find new elements in "Information géographique"'s directory :
- - Agrégation de géométries
- - Alimentation fichier SIG
- - Extraction depuis fichier SIG
- - Géotraitement
- - Information sur géométrie
- - Opération avec système de coordonnées
- - Relation spatiale et proximité
+You will find new elements in "Geospatial"'s directory :
+ - Geospatial Group by
+ - GIS File output
+ - GIS File input
+ - Geoprocessing
+ - Geometry information
+ - Coordinate system operation
+ - Spatial relationship and proximity
 
 
 LICENSE
