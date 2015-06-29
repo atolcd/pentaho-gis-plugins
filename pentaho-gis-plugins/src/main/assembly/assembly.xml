@@ -7,6 +7,7 @@
     <format>tar.bz2</format-->
     <format>zip</format>
   </formats>
+  <baseDirectory>pentaho-gis-plugins</baseDirectory>
   <fileSets>
     <fileSet>
       <directory>${project.basedir}</directory>
@@ -23,13 +24,13 @@
     </fileSet>
   </fileSets>
   <dependencySets>
-  <dependencySet>
+    <dependencySet>
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <scope>runtime</scope>
       <includes>
-        <include>com.atolcd.pentaho.di:pentaho-gis-plugin</include>
-       </includes>
+        <include>com.atolcd.pentaho.di:pentaho-gis-plugins</include>
+      </includes>
     </dependencySet>
     <dependencySet>
       <outputDirectory>/lib</outputDirectory>
@@ -38,7 +39,7 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <excludes>
         <!-- Atol plugin -->
-        <exclude>com.atolcd.pentaho.di:pentaho-gis-plugin</exclude>	
+        <exclude>com.atolcd.pentaho.di:pentaho-gis-plugins</exclude>
         <!-- from  5.4 -->
         <exclude>pentaho-kettle:kettle-ui-swt</exclude>
         <exclude>pentaho-kettle:kettle-core</exclude>
