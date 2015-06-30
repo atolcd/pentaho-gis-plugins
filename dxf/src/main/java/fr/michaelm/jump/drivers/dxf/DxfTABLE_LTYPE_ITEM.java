@@ -89,6 +89,7 @@ public class DxfTABLE_LTYPE_ITEM extends DxfTABLE_ITEM {
         this.pattern = pattern;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Map readTable(RandomAccessFile raf) throws IOException {
         DxfTABLE_LTYPE_ITEM item = new DxfTABLE_LTYPE_ITEM("DEFAULT", 0);
         Map table = new LinkedHashMap();

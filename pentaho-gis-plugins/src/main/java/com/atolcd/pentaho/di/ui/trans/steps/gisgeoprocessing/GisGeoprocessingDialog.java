@@ -298,7 +298,7 @@ public class GisGeoprocessingDialog extends BaseStepDialog implements StepDialog
 
         // Distance
         wlDistanceField = new Label(wInputGroup, SWT.RIGHT);
-        wlDistanceField.setText(BaseMessages.getString(PKG, "GisGeoprocessing.DistanceFieldName.Label"));
+        wlDistanceField.setText(BaseMessages.getString(PKG, "GisGeoprocessing.Distance.Label"));
         props.setLook(wlDistanceField);
         fdlDistanceField = new FormData();
         fdlDistanceField.left = new FormAttachment(0, 0);

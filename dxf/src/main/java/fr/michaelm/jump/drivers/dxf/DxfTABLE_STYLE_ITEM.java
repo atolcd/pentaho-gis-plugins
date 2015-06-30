@@ -123,6 +123,7 @@ public class DxfTABLE_STYLE_ITEM extends DxfTABLE_ITEM {
         this.bigFontFileName = bigFontFileName;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Map readTable(RandomAccessFile raf) throws IOException {
         DxfTABLE_STYLE_ITEM item = new DxfTABLE_STYLE_ITEM("DEFAULT", 0);
         Map table = new LinkedHashMap();

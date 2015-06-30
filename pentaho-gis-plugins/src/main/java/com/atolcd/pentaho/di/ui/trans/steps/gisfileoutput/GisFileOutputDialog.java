@@ -321,11 +321,13 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
                 if (wOutputFormat.getText() != null && !wOutputFormat.getText().isEmpty()) {
 
                     String[] extensions = input.getOutputFormatDefs().get(getFormatKey(wOutputFormat.getText())).getExtensions();
+                    String[] extensionsNames = input.getOutputFormatDefs().get(getFormatKey(wOutputFormat.getText())).getExtensionsNames();
 
                     FileDialog dialog = new FileDialog(shell, SWT.SAVE);
                     dialog.setFilterExtensions(extensions);
+                    dialog.setFilterNames(extensionsNames);
                     if (wFileName.getText() != null) {
-                        dialog.setFileName(wFileName.getText());
+                        dialog.setFileName(transMeta.environmentSubstitute(wFileName.getText()));
                     }
 
                     if (dialog.open() != null) {

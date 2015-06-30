@@ -36,6 +36,7 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
 import com.atolcd.pentaho.di.gis.io.AbstractFileReader;
+import com.atolcd.pentaho.di.gis.io.DXFReader;
 import com.atolcd.pentaho.di.gis.io.GeoJSONReader;
 import com.atolcd.pentaho.di.gis.io.MapInfoReader;
 import com.atolcd.pentaho.di.gis.io.ShapefileReader;
@@ -74,6 +75,13 @@ public class GisFileInput extends BaseStep implements StepInterface {
                 String tableName = environmentSubstitute((String) meta.getInputParameterValue("DB_TABLE_NAME"));
                 fileReader = new SpatialiteReader(environmentSubstitute(meta.getInputFileName()), tableName, meta.getEncoding());
 
+            } else if (meta.getInputFormat().equalsIgnoreCase("DXF")) {
+                String circleAsPolygon = environmentSubstitute((String) meta.getInputParameterValue("CIRCLE_AS_POLYGON"));
+                String ellipseAsPolygon = environmentSubstitute((String) meta.getInputParameterValue("ELLIPSE_AS_POLYGON"));
+                String lineAsPolygon = environmentSubstitute((String) meta.getInputParameterValue("LINE_AS_POLYGON"));
+
+                fileReader = new DXFReader(environmentSubstitute(meta.getInputFileName()), environmentSubstitute(meta.getGeometryFieldName()), meta.getEncoding(),
+                        Boolean.parseBoolean(circleAsPolygon), Boolean.parseBoolean(ellipseAsPolygon), Boolean.parseBoolean(lineAsPolygon));
             }
 
             String forceToMultigeometry = environmentSubstitute((String) meta.getInputParameterValue("FORCE_TO_MULTIGEOMETRY"));

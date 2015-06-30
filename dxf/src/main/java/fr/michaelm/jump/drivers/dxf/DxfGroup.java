@@ -86,7 +86,7 @@ public class DxfGroup {
         return Double.parseDouble(value.trim());
     }
 
-    public void setValue() {
+    public void setValue(String value) {
         this.value = value;
     }
 

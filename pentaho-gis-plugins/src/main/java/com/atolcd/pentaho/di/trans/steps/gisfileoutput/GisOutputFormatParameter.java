@@ -22,7 +22,6 @@ package com.atolcd.pentaho.di.trans.steps.gisfileoutput;
  * #L%
  */
 
-
 public class GisOutputFormatParameter {
 
     private String key;

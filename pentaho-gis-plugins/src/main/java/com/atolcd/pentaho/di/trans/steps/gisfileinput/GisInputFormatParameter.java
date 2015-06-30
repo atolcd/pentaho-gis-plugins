@@ -22,7 +22,6 @@ package com.atolcd.pentaho.di.trans.steps.gisfileinput;
  * #L%
  */
 
-
 public class GisInputFormatParameter {
 
     private String key;

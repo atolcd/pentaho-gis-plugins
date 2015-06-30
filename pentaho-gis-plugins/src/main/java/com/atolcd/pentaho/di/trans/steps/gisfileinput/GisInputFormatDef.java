@@ -22,7 +22,6 @@ package com.atolcd.pentaho.di.trans.steps.gisfileinput;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,11 +30,13 @@ public class GisInputFormatDef {
 
     private String key;
     private String[] extensions;
+    private String[] extensionsNames;
     private LinkedHashMap<String, GisInputFormatParameterDef> parameterDefs;
 
-    public GisInputFormatDef(String key, String[] extensions) {
+    public GisInputFormatDef(String key, String[] extensions, String[] extensionsNames) {
         this.key = key;
         this.extensions = extensions;
+        this.extensionsNames = extensionsNames;
         this.parameterDefs = new LinkedHashMap<String, GisInputFormatParameterDef>();
     }
 
@@ -45,6 +46,10 @@ public class GisInputFormatDef {
 
     public String[] getExtensions() {
         return extensions;
+    }
+
+    public String[] getExtensionsNames() {
+        return extensionsNames;
     }
 
     public void addParameterDef(String key, int valueMetaType, boolean required) {

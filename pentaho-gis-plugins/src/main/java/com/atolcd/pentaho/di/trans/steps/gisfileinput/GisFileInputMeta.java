@@ -56,6 +56,7 @@ import org.pentaho.di.trans.step.StepMetaInterface;
 import org.w3c.dom.Node;
 
 import com.atolcd.pentaho.di.gis.io.AbstractFileReader;
+import com.atolcd.pentaho.di.gis.io.DXFReader;
 import com.atolcd.pentaho.di.gis.io.GeoJSONReader;
 import com.atolcd.pentaho.di.gis.io.MapInfoReader;
 import com.atolcd.pentaho.di.gis.io.ShapefileReader;
@@ -82,26 +83,33 @@ public class GisFileInputMeta extends BaseStepMeta implements StepMetaInterface 
         this.inputFormatParameters = new ArrayList<GisInputFormatParameter>();
 
         // ESRI Shapefile
-        GisInputFormatDef shpDef = new GisInputFormatDef("ESRI_SHP", new String[] { "*.shp" });
+        GisInputFormatDef shpDef = new GisInputFormatDef("ESRI_SHP", new String[] { "*.shp;*.SHP" }, new String[] { "*.shp" });
         shpDef.addParameterDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
         shpDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("ESRI_SHP", shpDef);
 
         // GeoJSON
-        GisInputFormatDef geojsonDef = new GisInputFormatDef("GEOJSON", new String[] { "*.geojson", "*.json" });
+        GisInputFormatDef geojsonDef = new GisInputFormatDef("GEOJSON", new String[] { "*.geojson;*.GEOJSON", "*.json;*.JSON" }, new String[] { "*.geojson", "*.json" });
         geojsonDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("GEOJSON", geojsonDef);
 
         // Mapinfo MIF/MID
-        GisInputFormatDef mapinfoDef = new GisInputFormatDef("MAPINFO_MIF", new String[] { "*.mif" });
+        GisInputFormatDef mapinfoDef = new GisInputFormatDef("MAPINFO_MIF", new String[] { "*.mif;*.MIF" }, new String[] { "*.mif" });
         mapinfoDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("MAPINFO_MIF", mapinfoDef);
 
         // SpatialLite
-        GisInputFormatDef sqlLiteDef = new GisInputFormatDef("SPATIALITE", new String[] { "*.db", "*.sqlite" });
+        GisInputFormatDef sqlLiteDef = new GisInputFormatDef("SPATIALITE", new String[] { "*.db;*.DB", "*.sqlite;*.SQLITE" }, new String[] { "*.db", "*.sqlite" });
         sqlLiteDef.addParameterDef("DB_TABLE_NAME", ValueMeta.TYPE_STRING, true);
         this.inputFormatDefs.put("SPATIALITE", sqlLiteDef);
 
+        // DXF
+        GisInputFormatDef dxfDef = new GisInputFormatDef("DXF", new String[] { "*.dxf;*.DXF" }, new String[] { "*.dxf" });
+        dxfDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("CIRCLE_AS_POLYGON", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("ELLIPSE_AS_POLYGON", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("LINE_AS_POLYGON", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        this.inputFormatDefs.put("DXF", dxfDef);
     }
 
     public List<GisInputFormatParameter> getInputFormatParameters() {
@@ -206,18 +214,15 @@ public class GisFileInputMeta extends BaseStepMeta implements StepMetaInterface 
             } else if (inputFormat.equalsIgnoreCase("MAPINFO_MIF")) {
                 fileReader = new MapInfoReader(space.environmentSubstitute(inputFileName), space.environmentSubstitute(geometryFieldName), charset.displayName());
             } else if (inputFormat.equalsIgnoreCase("SPATIALITE")) {
-
                 String tableName = space.environmentSubstitute((String) getInputParameterValue("DB_TABLE_NAME"));
                 fileReader = new SpatialiteReader(space.environmentSubstitute(inputFileName), tableName, charset.displayName());
+            } else if (inputFormat.equalsIgnoreCase("DXF")) {
+                fileReader = new DXFReader(space.environmentSubstitute(inputFileName), space.environmentSubstitute(geometryFieldName), charset.displayName(), false, false, false);
             }
-
             r.addRowMeta(FeatureConverter.getRowMeta(fileReader.getFields(), origin));
-
         } catch (KettleException e) {
-
             e.printStackTrace();
         }
-
     }
 
     public List<String> getParameterPredefinedValues(String formatKey, String parameterKey) {

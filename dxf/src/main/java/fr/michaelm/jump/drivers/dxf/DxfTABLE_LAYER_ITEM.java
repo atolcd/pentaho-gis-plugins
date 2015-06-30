@@ -67,6 +67,7 @@ public class DxfTABLE_LAYER_ITEM extends DxfTABLE_ITEM {
         this.colorNumber = colorNumber;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Map readTable(RandomAccessFile raf) throws IOException {
         DxfTABLE_LAYER_ITEM item = new DxfTABLE_LAYER_ITEM("DEFAULT", 0);
         Map table = new LinkedHashMap();

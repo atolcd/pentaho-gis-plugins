@@ -77,18 +77,18 @@ public class GisFileOutputMeta extends BaseStepMeta implements StepMetaInterface
         this.outputFormatFixedParameters = new ArrayList<GisOutputFormatParameter>();
 
         // ESRI Shapefile
-        GisOutputFormatDef shpDef = new GisOutputFormatDef("ESRI_SHP", new String[] { "*.shp" });
+        GisOutputFormatDef shpDef = new GisOutputFormatDef("ESRI_SHP", new String[] { "*.shp;*.SHP" }, new String[] { "*.shp" });
         shpDef.addParameterFixedDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
         shpDef.addParameterFixedDef("ESRI_SHP_CREATE_PRJ", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
         this.outputFormatDefs.put("ESRI_SHP", shpDef);
 
         // GeoJSON
-        GisOutputFormatDef geojsonDef = new GisOutputFormatDef("GEOJSON", new String[] { "*.geojson", "*.json" });
+        GisOutputFormatDef geojsonDef = new GisOutputFormatDef("GEOJSON", new String[] { "*.geojson;*.GEOJSON", "*.json;*.JSON" }, new String[] { "*.geojson", "*.json" });
         geojsonDef.addParameterFieldDef("GEOJSON_FEATURE_ID", ValueMeta.TYPE_STRING, false);
         this.outputFormatDefs.put("GEOJSON", geojsonDef);
 
         // Keyhole Markup LanguageKML
-        GisOutputFormatDef kmlDef = new GisOutputFormatDef("KML", new String[] { "*.kml" });
+        GisOutputFormatDef kmlDef = new GisOutputFormatDef("KML", new String[] { "*.kml;*.KML" }, new String[] { "*.kml" });
         kmlDef.addParameterFixedDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
         kmlDef.addParameterFixedDef("KML_DOC_NAME", ValueMeta.TYPE_STRING, false);
         kmlDef.addParameterFixedDef("KML_DOC_DESCRIPTION", ValueMeta.TYPE_STRING, false);
@@ -98,7 +98,7 @@ public class GisFileOutputMeta extends BaseStepMeta implements StepMetaInterface
         this.outputFormatDefs.put("KML", kmlDef);
 
         // DXF
-        GisOutputFormatDef dxfDef = new GisOutputFormatDef("DXF", new String[] { "*.dxf" });
+        GisOutputFormatDef dxfDef = new GisOutputFormatDef("DXF", new String[] { "*.dxf;*.DXF" }, new String[] { "*.dxf" });
         dxfDef.addParameterFixedDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
         dxfDef.addParameterFixedDef("DXF_LAYER_NAME", ValueMeta.TYPE_STRING, true, null, "0");
         dxfDef.addParameterFixedDef("DXF_COORD_PRECISION", ValueMeta.TYPE_INTEGER, true, null, "5");

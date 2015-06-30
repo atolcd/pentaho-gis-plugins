@@ -22,7 +22,6 @@ package com.atolcd.pentaho.di.trans.steps.gisfileinput;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.List;
 

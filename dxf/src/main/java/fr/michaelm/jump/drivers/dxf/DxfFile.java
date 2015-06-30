@@ -2,7 +2,6 @@ package fr.michaelm.jump.drivers.dxf;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -19,7 +18,7 @@ public class DxfFile {
     public void write(List<Geometry> geometries, String[] layerNames, FileWriter fw, int precision) {
 
         Envelope envelope = geometryFactory.buildGeometry(geometries).getEnvelopeInternal();
-        Date date = new Date(System.currentTimeMillis());
+        // Date date = new Date(System.currentTimeMillis());
         try {
 
             // ECRITURE DU HEADER

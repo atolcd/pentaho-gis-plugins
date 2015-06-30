@@ -59,6 +59,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   </build>
 
   <repositories>
+    <!-- Local repository -->
+    <repository>
+      <id>local-maven-repo</id>
+      <name>Local Maven Repo</name>
+      <url>file://${project.basedir}/../local-maven-repo</url>
+    </repository>
     <repository>
       <id>pentaho-releases</id>
       <url>http://repository.pentaho.org/artifactory/repo/</url>
@@ -177,6 +183,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <groupId>com.atolcd.gis</groupId>
       <artifactId>dxf</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <!-- In the local repository, kabeja is a dxf's dependency needed in final zip -->
+    <dependency>
+      <groupId>org.kabeja</groupId>
+      <artifactId>kabeja</artifactId>
+      <version>0.4</version>
     </dependency>
     <dependency>
       <groupId>com.atolcd.gis</groupId>
