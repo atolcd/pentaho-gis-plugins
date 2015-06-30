@@ -11,7 +11,7 @@
   <fileSets>
     <fileSet>
       <directory>${project.basedir}</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory></outputDirectory>
       <includes>
         <include>README*</include>
         <include>LICENSE*</include>
@@ -25,7 +25,7 @@
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory></outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <scope>runtime</scope>
       <includes>
@@ -33,7 +33,7 @@
       </includes>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>lib</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <scope>runtime</scope>
       <useTransitiveDependencies>false</useTransitiveDependencies>
