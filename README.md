@@ -9,5 +9,5 @@ See [pentaho-gis-plugins/README.md](https://github.com/atolcd/pentaho-gis-plugin
 
 Our company
 ---------------------
-[Atol Conseils et Développements] (http://www.atolcd.com)
-Follow us on twitter [@atolcd] (https://twitter.com/atolcd)
+[Atol Conseils et Développements](http://www.atolcd.com)
+Follow us on twitter [@atolcd](https://twitter.com/atolcd)

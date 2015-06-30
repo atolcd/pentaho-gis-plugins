@@ -1,0 +1,39 @@
+
+  <!-- Entry pattern https://github.com/pentaho/marketplace-metadata/blob/master/marketplace.xml -->
+  <market_entry>
+    <id>pentaho-gis-plugins</id>
+    <type>Step</type>
+    <name>PDI GIS Plugins</name>
+    <category>
+      <name>Enhancements</name>
+      <parent>
+        <name>PDI Plugins</name>
+      </parent>
+    </category>
+    <description>Provides GIS steps for PDI : file input, file output, coordinates transformation, geoprocessing.</description>
+    <versions>
+      <version>
+        <branch>master</branch>
+        <version>[LIKELY TO CHANGE]</version>
+        <package_url>[LIKELY TO CHANGE]</package_url>
+        <source_url>https://github.com/atolcd/pentaho-gis-plugins/tree/master/pentaho-gis-plugins</source_url>
+        <development_stage>
+          <lane>Community</lane>
+          <phase>2</phase>
+        </development_stage>
+      </version>
+    </versions>
+    <author>Atol CD</author>
+    <author_url>http://www.atolcd.com</author_url>
+    <documentation_url>https://github.com/atolcd/pentaho-gis-plugins/blob/master/pentaho-gis-plugins/README.md</documentation_url>
+    <cases_url>https://github.com/atolcd/pentaho-gis-plugins/issues</cases_url>
+    <license_name>LGPL v3</license_name>
+    <license_text>For more details about the GNU General Lesser Public License v3.0 see:
+      http://www.gnu.org/licenses/lgpl-3.0.html
+    </license_text>
+    <support_level>COMMUNITY_SUPPORTED</support_level>
+    <support_message>Supported by Atol Conseils et Développements</support_message>
+    <support_organization>Atol Conseils et Développements</support_organization>
+    <support_url>https://github.com/atolcd/pentaho-gis-plugins/issues</support_url>
+  </market_entry>
+
