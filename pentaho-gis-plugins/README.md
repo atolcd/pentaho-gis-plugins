@@ -114,7 +114,7 @@ Contributing
 3. Create a local branch that will support your dev (`git checkout -b a-new-dev`)
 4. Commit changes to your local branch branch (`git commit -am "Add a new dev"`)
 5. Push the branch to the central repository (`git push origin a-new-dev`)
-6. Open a [Pull Request][1]
+6. Open a [Pull Request](https://github.com/atolcd/pentaho-gis-plugins/pulls)
 7. Wait for the PR to be supported
 
 
