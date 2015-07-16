@@ -80,8 +80,10 @@ public class GisGeometryInfoMeta extends BaseStepMeta implements StepMetaInterfa
         this.infosTypes.put("GEOMETRY_VERTEX_COUNT", ValueMeta.TYPE_INTEGER);
         this.infosTypes.put("X_MIN", ValueMeta.TYPE_NUMBER);
         this.infosTypes.put("Y_MIN", ValueMeta.TYPE_NUMBER);
+        this.infosTypes.put("Z_MIN", ValueMeta.TYPE_NUMBER);
         this.infosTypes.put("X_MAX", ValueMeta.TYPE_NUMBER);
         this.infosTypes.put("Y_MAX", ValueMeta.TYPE_NUMBER);
+        this.infosTypes.put("Z_MAX", ValueMeta.TYPE_NUMBER);
 
     }
 

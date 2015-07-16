@@ -175,6 +175,12 @@ public class GisGeometryInfo extends BaseStep implements StepInterface {
             } else if (infoKey.equalsIgnoreCase("Y_MAX")) {
                 value = GeometryUtils.getMaxY(geometry);
 
+            } else if (infoKey.equalsIgnoreCase("Z_MIN")) {
+                value = GeometryUtils.getMinZ(geometry);
+
+            } else if (infoKey.equalsIgnoreCase("Z_MAX")) {
+                value = GeometryUtils.getMaxZ(geometry);
+
             }
 
             newRow[fieldIndex] = value;

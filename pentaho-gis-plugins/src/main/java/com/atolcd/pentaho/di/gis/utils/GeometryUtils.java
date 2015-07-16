@@ -244,6 +244,78 @@ public final class GeometryUtils {
         return null;
 
     }
+    
+    /**
+     * Returns the z min
+     * 
+     * @param geometry
+     * @return
+     */
+    public static Double getMinZ(Geometry geometry) {
+
+        if (!isNullOrEmptyGeometry(geometry)) {
+        	
+        	Double z = null;
+        	
+        	for (Coordinate coordinate : geometry.getCoordinates()){
+        		
+        		if (!Double.isNaN(coordinate.z)) {
+        			
+        			if(z == null){
+        				z = coordinate.z;
+        			}else{
+        				
+        				if(coordinate.z < z){
+        					z = coordinate.z;
+        				}
+        			}
+        			
+        		}
+        		
+        	}
+        	
+            return z;
+        }
+
+        return null;
+
+    }
+    
+    /**
+     * Returns the z max
+     * 
+     * @param geometry
+     * @return
+     */
+    public static Double getMaxZ(Geometry geometry) {
+
+        if (!isNullOrEmptyGeometry(geometry)) {
+        	
+        	Double z = null;
+        	
+        	for (Coordinate coordinate : geometry.getCoordinates()){
+        		
+        		if (!Double.isNaN(coordinate.z)) {
+        			
+        			if(z == null){
+        				z = coordinate.z;
+        			}else{
+        				
+        				if(coordinate.z > z){
+        					z = coordinate.z;
+        				}
+        			}
+        			
+        		}
+        		
+        	}
+        	
+            return z;
+        }
+
+        return null;
+
+    }
 
     /**
      * Returns the geometry sub-geometries number or 1 if simple geometry
