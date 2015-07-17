@@ -472,7 +472,7 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
 
             } else if (operator.equalsIgnoreCase("EXTRACT_COORDINATES")) {
 
-                outGeometry = geometryFactory.createMultiPoint(GeometryUtils.get2DGeometry(inGeometry).getCoordinates());
+                outGeometry = geometryFactory.createMultiPoint(inGeometry.getCoordinates());
 
             } else if (operator.equalsIgnoreCase("MBR")) {
 
