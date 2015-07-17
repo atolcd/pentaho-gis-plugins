@@ -190,16 +190,29 @@ public class GisFileInputDialog extends BaseStepDialog implements StepDialogInte
 
                 // Pas de nom de colonne géométrie pour spatialite : plusieurs
                 // géométries autorisées
-                if (wInputFormat.getText() != null && !wInputFormat.getText().isEmpty() && getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")) {
-                    wGeometryField.setEnabled(false);
-                    wGeometryField.setText("");
-                    wlGeometryField.setEnabled(false);
+                if (wInputFormat.getText() != null && !wInputFormat.getText().isEmpty()
+                		&& (getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")
+                			|| getFormatKey(wInputFormat.getText()).equalsIgnoreCase("DXF")
+                				)) {
+                	
+                	if(getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")){
+                		wGeometryField.setEnabled(false);
+                		wGeometryField.setText("");
+                		wlGeometryField.setEnabled(false);
+                	}
 
-                    wEncoding.setEnabled(false);
-                    wlEncoding.setEnabled(false);
-                    wEncoding.setText("UTF-8");
+                	wEncoding.setEnabled(false);
+                	wlEncoding.setEnabled(false);
+                    
+                	if(getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")){
+                		wEncoding.setText("UTF-8");
+                	}else{
+                		//DXF
+                		wEncoding.setText("windows-1252");
+                	}
 
                 } else {
+                	
                     wGeometryField.setEnabled(true);
                     wGeometryField.setText(BaseMessages.getString(PKG, "GisFileInput.GeometryFieldName.Default"));
                     wlGeometryField.setEnabled(true);

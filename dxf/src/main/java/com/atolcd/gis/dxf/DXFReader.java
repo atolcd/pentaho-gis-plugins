@@ -140,7 +140,6 @@ public class DXFReader {
                 entity.setType(Entity.TYPE_TEXT);
                 entity.setGeometry(geometryFactory.createPoint(new Coordinate(dxfInsertPoint.getX(), dxfInsertPoint.getY())));
                 entity.setText(dxfText.getText());
-
                 entities.add(entity);
             }
         }

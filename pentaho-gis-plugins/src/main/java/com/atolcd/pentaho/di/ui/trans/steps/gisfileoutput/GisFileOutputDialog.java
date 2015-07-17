@@ -222,11 +222,20 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
 
                     // Si KML ou Spatalite ou sqlite UTF8 forcé
                     if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("KML") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SPATIALITE")
-                            || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE")) {
+                            || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("DXF")) {
 
                         wEncoding.setEnabled(false);
                         wlEncoding.setEnabled(false);
-                        wEncoding.setText("UTF-8");
+                        
+                        if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("KML") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SPATIALITE")
+                                || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE")){
+                        
+                        	wEncoding.setText("UTF-8");
+                        
+                        }else{
+                        	//DXF
+                        	wEncoding.setText("windows-1252");
+                        }
 
                     } else {
 
