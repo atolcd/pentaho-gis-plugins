@@ -13,6 +13,7 @@ Building the plugins
 Check out the project if you have not already done so :
 
         git clone git://github.com/atolcd/pentaho-gis-plugins.git
+        cd pentaho-gis-plugins
 
 Install Java, Maven and PDI 5.4.
 
@@ -24,7 +25,7 @@ To package the plugins, run the following commands from the base project directo
         cd pentaho-gis-plugins
         mvn clean assembly:assembly
 
-The built package is target/pentaho-gis-plugins-1.0-SNAPSHOT-bin.zip (version can differ)
+The built package is target/pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip (version can differ)
 
 
 ***Integration with Eclipse***
@@ -60,8 +61,8 @@ Proceed in two steps : first use "Uninstall this plugin" then start a fresh inst
 Extract the content of pentaho-gis-plugins-VERSION-bin.zip in ${PENTAHO_HOME}/plugins/steps.
 Example of extraction from the root directory of the project :
 
-        wget https://github.com/atolcd/pentaho-gis-plugins/releases/download/v1.0-snapshot/pentaho-gis-plugins-1.0-SNAPSHOT-bin.zip
-        unzip pentaho-gis-plugins-1.0-SNAPSHOT-bin.zip -d ${PENTAHO_HOME}/plugins/steps
+        wget https://github.com/atolcd/pentaho-gis-plugins/releases/download/v1.1-snapshot/pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip
+        unzip pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip -d ${PENTAHO_HOME}/plugins/steps
 
 To upgrade the plugin, delete files you added before and start a fresh installation.
 
