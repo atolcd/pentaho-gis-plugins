@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.atolcd.pentaho.di</groupId>
+            <artifactId>geometry-interface</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.postgis</groupId>
             <artifactId>postgis-jdbc</artifactId>
             <version>2.0.1</version>
