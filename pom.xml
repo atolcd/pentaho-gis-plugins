@@ -22,5 +22,6 @@
     <module>shp</module>
     <module>spatialite</module>
     <module>geometry-datatype</module>
+    <module>geometry-interface</module>
   </modules>
 </project>

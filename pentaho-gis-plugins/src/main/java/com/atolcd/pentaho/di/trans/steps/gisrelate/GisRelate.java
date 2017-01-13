@@ -27,6 +27,7 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
@@ -60,11 +61,13 @@ public class GisRelate extends BaseStep implements StepInterface {
 
     private boolean withDistance;
     private Class<?> resultType;
+    private GeometryInterface firstGeometryInterface;
+    private GeometryInterface secondGeometryInterface;
 
     private Object getRelateResult(Object[] row) throws KettleException {
 
-        Geometry firstGeometry = new ValueMetaGeometry().getGeometry(row[firstGeometryFieldIndex]);
-        Geometry secondGeometry = new ValueMetaGeometry().getGeometry(row[secondGeometryFieldIndex]);
+        Geometry firstGeometry = ((GeometryInterface) firstGeometryInterface).getGeometry(row[firstGeometryFieldIndex]);
+        Geometry secondGeometry = ((GeometryInterface) secondGeometryInterface).getGeometry(row[secondGeometryFieldIndex]);
 
         if (!GeometryUtils.isNullOrEmptyGeometry(firstGeometry) && !GeometryUtils.isNullOrEmptyGeometry(secondGeometry)) {
 
@@ -126,7 +129,8 @@ public class GisRelate extends BaseStep implements StepInterface {
             // d'entrée
             firstGeometryFieldIndex = getInputRowMeta().indexOfValue(meta.getFirstGeometryFieldName());
             secondGeometryFieldIndex = getInputRowMeta().indexOfValue(meta.getSecondGeometryFieldName());
-
+            firstGeometryInterface = (GeometryInterface) getInputRowMeta().getValueMeta(firstGeometryFieldIndex);
+            secondGeometryInterface = (GeometryInterface) getInputRowMeta().getValueMeta(secondGeometryFieldIndex);
             // Besoin de distance
             if (ArrayUtils.contains(meta.getWithDistanceOperators(), operator)) {
 
