@@ -53,6 +53,7 @@ import org.pentaho.di.core.exception.KettlePluginException;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.ValueDataUtil;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.row.value.ValueMetaPlugin;
 import org.postgis.PGgeometryLW;
@@ -72,7 +73,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 @ValueMetaPlugin(id = "43663879", name = "Geometry", description = "A geometry GIS object")
-public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
+public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterface, Cloneable {
 
     // Postgis
     public static BinaryParser pgGeometryParser = new BinaryParser();
@@ -140,15 +141,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_STRING:
+            case ValueMetaInterface.TYPE_STRING:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = object == null ? null : object.toString();
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = (String) convertBinaryStringToNativeType((byte[]) object);
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : (String) index[((Integer) object).intValue()];
                     break;
                 default:
@@ -158,15 +159,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                     string = trim(string);
                 break;
 
-            case TYPE_DATE:
+            case ValueMetaInterface.TYPE_DATE:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = convertDateToString((Date) object);
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertDateToString((Date) convertBinaryStringToNativeType((byte[]) object));
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : convertDateToString((Date) index[((Integer) object).intValue()]);
                     break;
                 default:
@@ -174,15 +175,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_NUMBER:
+            case ValueMetaInterface.TYPE_NUMBER:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = convertNumberToString((Double) object);
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertNumberToString((Double) convertBinaryStringToNativeType((byte[]) object));
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : convertNumberToString((Double) index[((Integer) object).intValue()]);
                     break;
                 default:
@@ -190,15 +191,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_INTEGER:
+            case ValueMetaInterface.TYPE_INTEGER:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = convertIntegerToString((Long) object);
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertIntegerToString((Long) convertBinaryStringToNativeType((byte[]) object));
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : convertIntegerToString((Long) index[((Integer) object).intValue()]);
                     break;
                 default:
@@ -206,15 +207,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_BIGNUMBER:
+            case ValueMetaInterface.TYPE_BIGNUMBER:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = convertBigNumberToString((BigDecimal) object);
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertBigNumberToString((BigDecimal) convertBinaryStringToNativeType((byte[]) object));
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : convertBigNumberToString((BigDecimal) index[((Integer) object).intValue()]);
                     break;
                 default:
@@ -222,15 +223,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_BOOLEAN:
+            case ValueMetaInterface.TYPE_BOOLEAN:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = convertBooleanToString((Boolean) object);
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertBooleanToString((Boolean) convertBinaryStringToNativeType((byte[]) object));
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : convertBooleanToString((Boolean) index[((Integer) object).intValue()]);
                     break;
                 default:
@@ -238,15 +239,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_BINARY:
+            case ValueMetaInterface.TYPE_BINARY:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = convertBinaryStringToString((byte[]) object);
                     break;
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertBinaryStringToString((byte[]) object);
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : convertBinaryStringToString((byte[]) index[((Integer) object).intValue()]);
                     break;
                 default:
@@ -254,15 +255,15 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 }
                 break;
 
-            case TYPE_SERIALIZABLE:
+            case ValueMetaInterface.TYPE_SERIALIZABLE:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     string = object == null ? null : object.toString();
                     break; // just go for the default toString()
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     string = convertBinaryStringToString((byte[]) object);
                     break;
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     string = object == null ? null : index[((Integer) object).intValue()].toString();
                     break; // just go for the default toString()
                 default:
@@ -315,7 +316,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
     public Object convertData(ValueMetaInterface meta2, Object data2) throws KettleValueException {
         try {
             switch (meta2.getType()) {
-            case TYPE_STRING:
+            case ValueMetaInterface.TYPE_STRING:
                 return convertStringToGeometry(meta2.getString(data2));
             case TYPE_GEOMETRY:
                 return data2;
@@ -339,30 +340,30 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                 return (Geometry) object;
             }
             switch (type) {
-            case TYPE_NUMBER:
+            case ValueMetaInterface.TYPE_NUMBER:
                 throw new KettleValueException(toString() + " : I don't know how to convert a number to a geometry.");
-            case TYPE_STRING:
+            case ValueMetaInterface.TYPE_STRING:
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     return convertStringToGeometry((String) object);
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     return convertStringToGeometry((String) convertBinaryStringToNativeType((byte[]) object));
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     return convertStringToGeometry((String) index[((Integer) object).intValue()]);
                 default:
                     throw new KettleValueException(toString() + " : Unknown storage type " + storageType + " specified.");
                 }
-            case TYPE_DATE:
+            case ValueMetaInterface.TYPE_DATE:
                 throw new KettleValueException(toString() + " : I don't know how to convert a date to a geometry.");
-            case TYPE_INTEGER:
+            case ValueMetaInterface.TYPE_INTEGER:
                 throw new KettleValueException(toString() + " : I don't know how to convert an integer to a geometry.");
-            case TYPE_BIGNUMBER:
+            case ValueMetaInterface.TYPE_BIGNUMBER:
                 throw new KettleValueException(toString() + " : I don't know how to convert a big number to a geometry.");
-            case TYPE_BOOLEAN:
+            case ValueMetaInterface.TYPE_BOOLEAN:
                 throw new KettleValueException(toString() + " : I don't know how to convert a boolean to a geometry.");
-            case TYPE_BINARY:
+            case ValueMetaInterface.TYPE_BINARY:
                 throw new KettleValueException(toString() + " : I don't know how to convert binary values to numbers.");
-            case TYPE_SERIALIZABLE:
+            case ValueMetaInterface.TYPE_SERIALIZABLE:
                 throw new KettleValueException(toString() + " : I don't know how to convert serializable values to numbers.");
             default:
                 throw new KettleValueException(toString() + " : Unknown type " + type + " specified.");
@@ -392,7 +393,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
             }
 
             switch (storageType) {
-            case STORAGE_TYPE_NORMAL:
+            case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                 try {
 
                     int size = inputStream.readInt();
@@ -405,10 +406,10 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
                     e.printStackTrace();
                 }
 
-            case STORAGE_TYPE_BINARY_STRING:
+            case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                 return readBinaryString(inputStream);
 
-            case STORAGE_TYPE_INDEXED:
+            case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                 return readSmallInteger(inputStream);
 
             default:
@@ -431,18 +432,18 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
 
             if (object != null) {
                 switch (storageType) {
-                case STORAGE_TYPE_NORMAL:
+                case ValueMetaInterface.STORAGE_TYPE_NORMAL:
                     byte[] binary = new WKBWriter().write((Geometry) object);
                     outputStream.writeInt(binary.length);
                     outputStream.write(binary);
 
                     break;
 
-                case STORAGE_TYPE_BINARY_STRING:
+                case ValueMetaInterface.STORAGE_TYPE_BINARY_STRING:
                     writeBinaryString(outputStream, (byte[]) object);
                     break;
 
-                case STORAGE_TYPE_INDEXED:
+                case ValueMetaInterface.STORAGE_TYPE_INDEXED:
                     writeInteger(outputStream, (Integer) object); // just an
                                                                   // index
                     break;
@@ -777,7 +778,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
 
         int cmp = 0;
         switch (getType()) {
-        case TYPE_STRING:
+        case ValueMetaInterface.TYPE_STRING:
             String one = getString(data1);
             String two = getString(data2);
 
@@ -788,23 +789,23 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
             }
             break;
 
-        case TYPE_INTEGER:
+        case ValueMetaInterface.TYPE_INTEGER:
             cmp = getInteger(data1).compareTo(getInteger(data2));
             break;
 
-        case TYPE_NUMBER:
+        case ValueMetaInterface.TYPE_NUMBER:
             cmp = Double.compare(getNumber(data1).doubleValue(), getNumber(data2).doubleValue());
             break;
 
-        case TYPE_DATE:
+        case ValueMetaInterface.TYPE_DATE:
             cmp = Long.valueOf(getDate(data1).getTime()).compareTo(Long.valueOf(getDate(data2).getTime()));
             break;
 
-        case TYPE_BIGNUMBER:
+        case ValueMetaInterface.TYPE_BIGNUMBER:
             cmp = getBigNumber(data1).compareTo(getBigNumber(data2));
             break;
 
-        case TYPE_BOOLEAN:
+        case ValueMetaInterface.TYPE_BOOLEAN:
             if (getBoolean(data1).booleanValue() == getBoolean(data2).booleanValue()) {
                 cmp = 0; // true == true, false == false
             } else if (getBoolean(data1).booleanValue() && !getBoolean(data2).booleanValue()) {
@@ -814,7 +815,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements Cloneable {
             }
             break;
 
-        case TYPE_BINARY:
+        case ValueMetaInterface.TYPE_BINARY:
             byte[] b1 = (byte[]) data1;
             byte[] b2 = (byte[]) data2;
 
