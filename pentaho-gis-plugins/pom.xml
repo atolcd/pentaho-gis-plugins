@@ -11,7 +11,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   <description>Pentaho's Data Integrator GIS Plugins</description>
 
   <properties>
-    <pentaho.version>5.4.0.1-130</pentaho.version>
+    <pentaho.version>7.0.0.6-95</pentaho.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -64,6 +64,21 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <id>local-maven-repo</id>
       <name>Local Maven Repo</name>
       <url>file://${project.basedir}/../local-maven-repo</url>
+    </repository>
+    <repository>
+      <id>52north.org-releases</id>
+      <name>52north.org-releases</name>
+      <url>http://52north.org/maven/repo/releases/</url>
+    </repository>
+    <repository>
+      <id>datanucleus</id>
+      <name>datanucleus</name>
+      <url>http://www.datanucleus.org/downloads/maven2/</url>
+    </repository>
+    <repository>
+      <id>jboss.org</id>
+      <name>jboss.org</name>
+      <url>https://repository.jboss.org</url>
     </repository>
     <repository>
       <id>pentaho-releases</id>
