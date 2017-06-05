@@ -40,7 +40,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <version>3.2</version>
         <configuration>
           <source>1.6</source>
-          <target>1.6</target>
+          <target>1.8</target>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
@@ -224,6 +224,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <groupId>com.atolcd.gis</groupId>
       <artifactId>spatialite</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.pentaho.di</groupId>
+      <artifactId>geometry-datatype</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
