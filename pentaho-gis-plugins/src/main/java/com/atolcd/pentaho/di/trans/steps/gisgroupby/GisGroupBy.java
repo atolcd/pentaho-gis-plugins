@@ -45,6 +45,7 @@ import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueDataUtil;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.core.row.value.ValueMetaInteger;
 import org.pentaho.di.core.row.value.ValueMetaNumber;
 import org.pentaho.di.i18n.BaseMessages;
@@ -56,7 +57,6 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
-import com.atolcd.pentaho.di.core.row.value.ValueMetaGeometry;
 import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -592,8 +592,8 @@ public class GisGroupBy extends BaseStep implements StepInterface {
             // GIS : Union des géométries
             case GisGroupByMeta.TYPE_GROUP_GEOMETRY_UNION:
                 if (subj != null) {
-                    Geometry geometryForUnion = GeometryCombiner.combine(((ValueMetaGeometry) valueMeta).getGeometry(value), ((ValueMetaGeometry) subjMeta).getGeometry(subj));
-                    geometrySRID = ((ValueMetaGeometry) subjMeta).getGeometry(subj).getSRID();
+                    Geometry geometryForUnion = GeometryCombiner.combine(((GeometryInterface) valueMeta).getGeometry(value), ((GeometryInterface) subjMeta).getGeometry(subj));
+                    geometrySRID = ((GeometryInterface) subjMeta).getGeometry(subj).getSRID();
                     data.agg[i] = geometryForUnion;
 
                 }
@@ -602,9 +602,9 @@ public class GisGroupBy extends BaseStep implements StepInterface {
             // GIS : Union des étendues
             case GisGroupByMeta.TYPE_GROUP_GEOMETRY_EXTENT:
                 if (subj != null) {
-                    Geometry geometryForExtent = GeometryCombiner.combine(((ValueMetaGeometry) valueMeta).getGeometry(value).getEnvelope(), ((ValueMetaGeometry) subjMeta)
+                    Geometry geometryForExtent = GeometryCombiner.combine(((GeometryInterface) valueMeta).getGeometry(value).getEnvelope(), ((GeometryInterface) subjMeta)
                             .getGeometry(subj).getEnvelope());
-                    geometrySRID = ((ValueMetaGeometry) subjMeta).getGeometry(subj).getSRID();
+                    geometrySRID = ((GeometryInterface) subjMeta).getGeometry(subj).getSRID();
                     data.agg[i] = geometryForExtent;
                 }
                 break;
@@ -612,8 +612,8 @@ public class GisGroupBy extends BaseStep implements StepInterface {
             // GIS : Union des étendues
             case GisGroupByMeta.TYPE_GROUP_GEOMETRY_AGG:
                 if (subj != null) {
-                    Geometry geometryForAgg = GeometryCombiner.combine(((ValueMetaGeometry) valueMeta).getGeometry(value), ((ValueMetaGeometry) subjMeta).getGeometry(subj));
-                    geometrySRID = ((ValueMetaGeometry) subjMeta).getGeometry(subj).getSRID();
+                    Geometry geometryForAgg = GeometryCombiner.combine(((GeometryInterface) valueMeta).getGeometry(value), ((GeometryInterface) subjMeta).getGeometry(subj));
+                    geometrySRID = ((GeometryInterface) subjMeta).getGeometry(subj).getSRID();
                     data.agg[i] = geometryForAgg;
                 }
                 break;
@@ -796,7 +796,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 // GIS : Union des géométries
                 case GisGroupByMeta.TYPE_GROUP_GEOMETRY_UNION:
 
-                    Geometry geomUnionGroup = ((ValueMetaGeometry) data.aggMeta.getValueMeta(i)).getGeometry(ag);
+                    Geometry geomUnionGroup = ((GeometryInterface) data.aggMeta.getValueMeta(i)).getGeometry(ag);
                     UnaryUnionOp unionOperateor = new UnaryUnionOp(geomUnionGroup);
                     Geometry geometryUnion = unionOperateor.union();
                     geometryUnion = GeometryUtils.getMergedGeometry(geometryUnion);
@@ -807,7 +807,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 // GIS : Extent des géométries
                 case GisGroupByMeta.TYPE_GROUP_GEOMETRY_EXTENT:
 
-                    Geometry geomExtentGroup = ((ValueMetaGeometry) data.aggMeta.getValueMeta(i)).getGeometry(ag);
+                    Geometry geomExtentGroup = ((GeometryInterface) data.aggMeta.getValueMeta(i)).getGeometry(ag);
                     Geometry geomtryExtent = geomExtentGroup.getEnvelope();
                     geomtryExtent.setSRID(geometrySRID);
                     ag = geomtryExtent;
@@ -816,7 +816,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 // GIS : Aggrégation des géométries
                 case GisGroupByMeta.TYPE_GROUP_GEOMETRY_AGG:
 
-                    Geometry geomAggGroup = ((ValueMetaGeometry) data.aggMeta.getValueMeta(i)).getGeometry(ag);
+                    Geometry geomAggGroup = ((GeometryInterface) data.aggMeta.getValueMeta(i)).getGeometry(ag);
                     Geometry geomtryAgg = geomAggGroup;
                     geomtryAgg.setSRID(geometrySRID);
                     ag = geomtryAgg;
