@@ -39,9 +39,23 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <url>file://${project.basedir}/../local-maven-repo</url>
     </repository>
     <repository>
-      <id>repo.pentaho.org</id>
-      <name>repo.pentaho.org-releases</name>
-      <url>http://repository.pentaho.org/artifactory/repo</url>
+      <id>52north.org-releases</id>
+      <name>52north.org-releases</name>
+      <url>http://52north.org/maven/repo/releases/</url>
+    </repository>
+    <repository>
+      <id>datanucleus</id>
+      <name>datanucleus</name>
+      <url>http://www.datanucleus.org/downloads/maven2/</url>
+    </repository>
+    <repository>
+      <id>jboss.org</id>
+      <name>jboss.org</name>
+      <url>https://repository.jboss.org</url>
+    </repository>
+    <repository>
+      <id>pentaho-releases</id>
+      <url>http://repository.pentaho.org/artifactory/repo/</url>
     </repository>
     <repository>
       <id>lds-main</id>
@@ -52,6 +66,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <id>maven-us.nuxeo.org</id>
       <name>maven-us.nuxeo.org</name>
       <url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>axiomalaska</id>
+      <name>axiomalaska</name>
+      <url>http://nexus.axiomalaska.com/nexus/content/groups/public/</url>
     </repository>
   </repositories>
 

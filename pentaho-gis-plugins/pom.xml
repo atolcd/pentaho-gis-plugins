@@ -4,14 +4,53 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <groupId>com.atolcd.pentaho.di</groupId>
   <artifactId>pentaho-gis-plugins</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Pentaho's Data Integrator GIS Plugins</name>
   <description>Pentaho's Data Integrator GIS Plugins</description>
 
+  <profiles>
+    <profile>
+      <id>pentaho-7</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>pentaho</name>
+          <value>7</value>
+        </property>
+      </activation>
+      <properties>
+        <pentaho.version>7.0.0.6-95</pentaho.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>pentaho-6</id>
+      <activation>
+        <property>
+          <name>pentaho</name>
+          <value>6</value>
+        </property>
+      </activation>
+      <properties>
+        <pentaho.version>6.1.0.14-354</pentaho.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>pentaho-5</id>
+      <activation>
+        <property>
+          <name>pentaho</name>
+          <value>5</value>
+        </property>
+      </activation>
+      <properties>
+        <pentaho.version>5.4.0.1-130</pentaho.version>
+      </properties>
+    </profile>
+  </profiles>
+
   <properties>
-    <pentaho.version>7.0.0.6-95</pentaho.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -40,7 +79,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <version>3.2</version>
         <configuration>
           <source>1.6</source>
-          <target>1.8</target>
+          <target>1.6</target>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
@@ -199,6 +238,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <artifactId>dxf</artifactId>
       <version>1.1-SNAPSHOT</version>
     </dependency>
+
     <!-- In the local repository, kabeja is a dxf's dependency needed in final zip -->
     <dependency>
       <groupId>org.kabeja</groupId>
@@ -228,6 +268,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <dependency>
       <groupId>com.atolcd.pentaho.di</groupId>
       <artifactId>geometry-datatype</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.pentaho.di</groupId>
+      <artifactId>geometry-interface</artifactId>
       <version>0.1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>

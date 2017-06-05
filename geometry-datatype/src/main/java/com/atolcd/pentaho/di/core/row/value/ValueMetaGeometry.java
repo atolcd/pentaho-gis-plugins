@@ -333,6 +333,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
         return getGeometry(object);
     }
 
+    @Override
     public Geometry getGeometry(Object object) throws KettleValueException {
 
         try {

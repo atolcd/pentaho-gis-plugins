@@ -3,7 +3,7 @@ Pentaho Data Integrator GIS Plugins
 
 This project allows you to manage GIS data in Pentaho's Data Integration.
 
-Works with PDI 5.4.
+Works with PDI 5.4, 6.1 and 7.0.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Blog article](https://blog.atolcd.com/wp-content/uploads/sites/2/2015/06/pdi_gis_00.png)](https://blog.atolcd.com/une-extension-gis-dans-pentaho-data-integration-5/)
 
@@ -15,7 +15,7 @@ Check out the project if you have not already done so :
         git clone git://github.com/atolcd/pentaho-gis-plugins.git
         cd pentaho-gis-plugins
 
-Install Java, Maven and PDI 5.4.
+Install Java 6+, Maven and PDI.
 
 To package the plugins, run the following commands from the base project directory :
 
@@ -24,6 +24,13 @@ To package the plugins, run the following commands from the base project directo
         # Create the package
         cd pentaho-gis-plugins
         mvn clean assembly:assembly
+
+Note :
+
+* You can specify the **target version of Pentaho** with one of the available profiles : pentaho-5, pentaho-6 or **pentaho-7** (default). Example :
+
+        mvn clean assembly:assembly -Dpentaho=5
+
 
 The built package is target/pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip (version can differ)
 

@@ -23,12 +23,12 @@ package com.atolcd.pentaho.di.gis.io;
  */
 
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.vfs2.FileSystemException;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.vfs.KettleVFS;
 
@@ -62,7 +62,7 @@ public abstract class AbstractFileWriter implements FileWriter {
         try {
             return KettleVFS.getFileObject(filename).getURL();
 
-        } catch (FileSystemException e) {
+        } catch (IOException e) {
 
             throw new KettleException("", e);
 
