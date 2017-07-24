@@ -3,7 +3,7 @@ Pentaho Data Integrator GIS Plugins
 
 This project allows you to manage GIS data in Pentaho's Data Integration.
 
-Works with PDI 5.4, 6.1 and 7.0.
+Works with PDI 5.4, 6.1 and 7.1.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Blog article](https://blog.atolcd.com/wp-content/uploads/sites/2/2015/06/pdi_gis_00.png)](https://blog.atolcd.com/une-extension-gis-dans-pentaho-data-integration-5/)
 
@@ -20,19 +20,19 @@ Install Java 6+, Maven and PDI.
 To package the plugins, run the following commands from the base project directory :
 
         # Install dependencies if needed
-        mvn install
+        mvn install -pl '!pentaho-gis-plugins'
         # Create the package
         cd pentaho-gis-plugins
-        mvn clean assembly:assembly
+        mvn clean package
 
 Note :
 
 * You can specify the **target version of Pentaho** with one of the available profiles : pentaho-5, pentaho-6 or **pentaho-7** (default). Example :
 
-        mvn clean assembly:assembly -Dpentaho=5
+        mvn clean package -Dpentaho=5
 
 
-The built package is target/pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip (version can differ)
+The built package is target/pentaho-gis-plugins-1.2.1-bin-5.zip (version can differ)
 
 
 ***Integration with Eclipse***
@@ -65,11 +65,11 @@ Proceed in two steps : first use "Uninstall this plugin" then start a fresh inst
 
 ***Method 2 : Manual installation***
 
-Extract the content of pentaho-gis-plugins-VERSION-bin.zip in ${PENTAHO_HOME}/plugins/steps.
+Extract the content of pentaho-gis-plugins-VERSION-bin.zip in ${PENTAHO_HOME}/plugins.
 Example of extraction from the root directory of the project :
 
-        wget https://github.com/atolcd/pentaho-gis-plugins/releases/download/v1.1-snapshot/pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip
-        unzip pentaho-gis-plugins-1.1-SNAPSHOT-bin.zip -d ${PENTAHO_HOME}/plugins/steps
+        wget https://github.com/atolcd/pentaho-gis-plugins/releases/download/v1.2.1/pentaho-gis-plugins-1.2.1-bin-5.zip
+        unzip pentaho-gis-plugins-1.2.1-bin-5.zip -d ${PENTAHO_HOME}/plugins
 
 To upgrade the plugin, delete files you added before and start a fresh installation.
 

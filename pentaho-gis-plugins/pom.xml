@@ -21,7 +21,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         </property>
       </activation>
       <properties>
-        <pentaho.version>7.0.0.6-95</pentaho.version>
+        <pentaho.version>7.1.0.1-14</pentaho.version>
       </properties>
     </profile>
     <profile>
@@ -33,7 +33,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         </property>
       </activation>
       <properties>
-        <pentaho.version>6.1.0.14-354</pentaho.version>
+        <pentaho.version>6.1.0.15-356</pentaho.version>
       </properties>
     </profile>
     <profile>
@@ -45,12 +45,13 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         </property>
       </activation>
       <properties>
-        <pentaho.version>5.4.0.1-130</pentaho.version>
+        <pentaho.version>5.4.1.8-209</pentaho.version>
       </properties>
     </profile>
   </profiles>
 
   <properties>
+    <pentaho>7</pentaho>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -61,6 +62,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <build>
     <defaultGoal>package</defaultGoal>
+    <finalName>pentaho-gis-plugins-${pom.version}-bin-${pentaho}</finalName>
+
     <plugins>
 
       <plugin>
@@ -86,12 +89,22 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.5</version>
+        <version>3.0.0</version>
         <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
             <descriptor>src/main/assembly/assembly.xml</descriptor>
           </descriptors>
         </configuration>
+        <!-- Ex : mvn clean package -Dpentaho=7 -->
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>
