@@ -26,6 +26,7 @@ package com.atolcd.pentaho.di.gis.io.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atolcd.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -125,7 +126,7 @@ public final class FeatureConverter {
                 } else if (rowMeta.getValueMeta(fieldIndex).isDate()) {
                     feature.addValue(field, (rowMeta.getDate(r, fieldIndex)));
                 } else if (rowMeta.getValueMeta(fieldIndex).getType() == ValueMetaGeometry.TYPE_GEOMETRY) {
-                    feature.addValue(field, ((ValueMetaGeometry) rowMeta.getValueMeta(fieldIndex)).getGeometry(r[fieldIndex]));
+                    feature.addValue(field, ((GeometryInterface) rowMeta.getValueMeta(fieldIndex)).getGeometry(r[fieldIndex]));
                 } else {
                     feature.addValue(field, rowMeta.getString(r, fieldIndex));
                 }

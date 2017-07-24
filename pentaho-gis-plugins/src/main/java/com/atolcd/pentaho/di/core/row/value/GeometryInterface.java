@@ -1,4 +1,4 @@
-package org.pentaho.di.core.row.value;
+package com.atolcd.pentaho.di.core.row.value;
 
 import com.vividsolutions.jts.geom.Geometry;
 import org.pentaho.di.core.exception.KettleValueException;

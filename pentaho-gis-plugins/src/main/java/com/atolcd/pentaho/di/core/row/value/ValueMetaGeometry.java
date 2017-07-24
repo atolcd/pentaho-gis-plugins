@@ -53,7 +53,6 @@ import org.pentaho.di.core.exception.KettlePluginException;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.ValueDataUtil;
 import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.row.value.ValueMetaPlugin;
 import org.postgis.PGgeometryLW;
@@ -72,7 +71,7 @@ import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
-@ValueMetaPlugin(id = "43663879", name = "Geometry", description = "A geometry GIS object")
+@ValueMetaPlugin(id = ""+ValueMetaGeometry.TYPE_GEOMETRY, name = "Geometry", description = "A geometry GIS object")
 public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterface, Cloneable {
 
     // Postgis
@@ -95,9 +94,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
 
     @Override
     public ValueMetaGeometry clone() {
-        ValueMetaGeometry geometryMeta = (ValueMetaGeometry) super.clone();
-        return geometryMeta;
-
+        return (ValueMetaGeometry) super.clone();
     }
 
     @Override

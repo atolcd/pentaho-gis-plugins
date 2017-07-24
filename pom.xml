@@ -4,7 +4,7 @@
 
   <groupId>com.atolcd.pentaho.di</groupId>
   <artifactId>pentaho-gis-plugins-holder</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.2.1</version>
   <packaging>pom</packaging>
 
   <name>Pentaho's Data Integrator GIS Plugins and modified deps</name>
@@ -21,7 +21,5 @@
     <module>mifmid</module>
     <module>shp</module>
     <module>spatialite</module>
-    <module>geometry-datatype</module>
-    <module>geometry-interface</module>
   </modules>
 </project>
