@@ -4,7 +4,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <groupId>com.atolcd.pentaho.di</groupId>
   <artifactId>pentaho-gis-plugins</artifactId>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
   <packaging>jar</packaging>
 
   <name>Pentaho's Data Integrator GIS Plugins</name>
@@ -12,16 +12,28 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <profiles>
     <profile>
-      <id>pentaho-7</id>
+      <id>pentaho-8</id>
       <activation>
         <activeByDefault>true</activeByDefault>
+        <property>
+          <name>pentaho</name>
+          <value>8</value>
+        </property>
+      </activation>
+      <properties>
+        <pentaho.version>8.3.0.0-371</pentaho.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>pentaho-7</id>
+      <activation>
         <property>
           <name>pentaho</name>
           <value>7</value>
         </property>
       </activation>
       <properties>
-        <pentaho.version>7.1.0.1-14</pentaho.version>
+        <pentaho.version>7.1.0.0-12</pentaho.version>
       </properties>
     </profile>
     <profile>
@@ -51,7 +63,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   </profiles>
 
   <properties>
-    <pentaho>7</pentaho>
+    <pentaho>8</pentaho>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -62,7 +74,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <build>
     <defaultGoal>package</defaultGoal>
-    <finalName>pentaho-gis-plugins-${pom.version}-bin-${pentaho}</finalName>
+    <finalName>pentaho-gis-plugins-${project.version}-bin-${pentaho}</finalName>
 
     <plugins>
 
@@ -89,7 +101,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.2.0</version>
         <configuration>
           <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
@@ -120,7 +132,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <repository>
       <id>52north.org-releases</id>
       <name>52north.org-releases</name>
-      <url>http://52north.org/maven/repo/releases/</url>
+      <url>https://52north.org/maven/repo/releases/</url>
     </repository>
     <repository>
       <id>datanucleus</id>
@@ -134,17 +146,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     </repository>
     <repository>
       <id>pentaho-releases</id>
-      <url>http://repository.pentaho.org/artifactory/repo/</url>
+      <url>https://nexus.pentaho.org/content/groups/omni</url>
     </repository>
     <repository>
       <id>lds-main</id>
       <name>Main Approved LDS Repo</name>
-      <url>http://code.lds.org/nexus/content/groups/main-repo</url>
+      <url>https://code.lds.org/nexus/content/groups/main-repo/artifactory/repo/</url>
     </repository>
     <repository>
       <id>maven-us.nuxeo.org</id>
       <name>maven-us.nuxeo.org</name>
-      <url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
+      <url>https://maven-us.nuxeo.org/nexus/content/groups/public/</url>
     </repository>
     <repository>
       <id>axiomalaska</id>
@@ -238,7 +250,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <dependency>
       <groupId>de.micromata.jak</groupId>
       <artifactId>JavaAPIforKml</artifactId>
-      <version>2.2.0-SNAPSHOT</version>
+      <version>2.2.1</version>
     </dependency>
     <!-- Atol projects -->
     <dependency>

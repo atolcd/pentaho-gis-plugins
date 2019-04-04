@@ -24,13 +24,11 @@ package com.atolcd.pentaho.di.gis.io;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.pentaho.di.core.exception.KettleException;
 import org.wololo.geojson.Crs;
 import org.wololo.geojson.FeatureCollection;
@@ -53,62 +51,57 @@ public class GeoJSONReader extends AbstractFileReader {
 
         super(null, geometryFieldName, charsetName);
 
-        try {
+        this.geoJsonFileExist = new File(checkFilename(fileName).getFile()).exists();
 
-            this.geoJsonFileExist = new File(checkFilename(fileName).getFile()).exists();
+        if (!this.geoJsonFileExist) {
+            throw new KettleException("Missing " + fileName + " file");
+        } else {
+            this.geoJsonFileName = checkFilename(fileName).getFile();
+        }
 
-            if (!this.geoJsonFileExist) {
-                throw new KettleException("Missing " + fileName + " file");
-            } else {
-                this.geoJsonFileName = checkFilename(fileName).getFile();
-            }
+        this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));
+        File file = new File(this.geoJsonFileName);
+        this.json = GeoJSONFactory.create(file);
 
-            this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));
-            this.json = GeoJSONFactory.create(FileUtils.readFileToString(new File(this.geoJsonFileName), this.charset.name()));
+        if (this.json instanceof FeatureCollection) {
 
-            if (this.json instanceof FeatureCollection) {
+            org.wololo.geojson.Feature geoJsonfeature = ((FeatureCollection) json).getFeatures()[0];
+            for (Map.Entry<String, Object> entry : geoJsonfeature.getProperties().entrySet()) {
 
-                org.wololo.geojson.Feature geoJsonfeature = ((FeatureCollection) json).getFeatures()[0];
-                for (Map.Entry<String, Object> entry : geoJsonfeature.getProperties().entrySet()) {
+                Field field = null;
+                String fieldName = entry.getKey();
+                Object value = entry.getValue();
 
-                    Field field = null;
-                    String fieldName = entry.getKey();
-                    Object value = entry.getValue();
+                if (value instanceof String) {
 
-                    if (value instanceof String) {
+                    field = new Field(fieldName, FieldType.STRING, null, null);
 
-                        field = new Field(fieldName, FieldType.STRING, null, null);
+                } else if (value instanceof Integer) {
 
-                    } else if (value instanceof Integer) {
+                    field = new Field(fieldName, FieldType.LONG, null, null);
 
-                        field = new Field(fieldName, FieldType.LONG, null, null);
+                } else if (value instanceof Boolean) {
 
-                    } else if (value instanceof Boolean) {
+                    field = new Field(fieldName, FieldType.BOOLEAN, null, null);
 
-                        field = new Field(fieldName, FieldType.BOOLEAN, null, null);
+                } else if (value instanceof Double) {
 
-                    } else if (value instanceof Double) {
+                    field = new Field(fieldName, FieldType.DOUBLE, null, null);
 
-                        field = new Field(fieldName, FieldType.DOUBLE, null, null);
+                } else if (value instanceof Date) {
 
-                    } else if (value instanceof Date) {
-
-                        field = new Field(fieldName, FieldType.DATE, null, null);
-
-                    }
-
-                    this.fields.add(field);
+                    field = new Field(fieldName, FieldType.DATE, null, null);
 
                 }
 
-            } else {
-
-                throw new KettleException("Error initialize reader : only FeatureCollection is supported");
+                this.fields.add(field);
 
             }
 
-        } catch (IOException e) {
-            throw new KettleException("Error initialize reader", e);
+        } else {
+
+            throw new KettleException("Error initialize reader : only FeatureCollection is supported");
+
         }
     }
 

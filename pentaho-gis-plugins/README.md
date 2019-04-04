@@ -3,7 +3,7 @@ Pentaho Data Integrator GIS Plugins
 
 This project allows you to manage GIS data in Pentaho's Data Integration.
 
-Works with PDI 5.4, 6.1 and 7.1.
+Works with PDI 5.4, 6.1, 7.1 and 8.3.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Blog article](https://blog.atolcd.com/wp-content/uploads/sites/2/2015/06/pdi_gis_00.png)](https://blog.atolcd.com/une-extension-gis-dans-pentaho-data-integration-5/)
 
@@ -27,7 +27,7 @@ To package the plugins, run the following commands from the base project directo
 
 Note :
 
-* You can specify the **target version of Pentaho** with one of the available profiles : pentaho-5, pentaho-6 or **pentaho-7** (default). Example :
+* You can specify the **target version of Pentaho** with one of the available profiles : pentaho-5, pentaho-6, pentaho-7, **pentaho-8** (default). Example :
 
         mvn clean package -Dpentaho=5
 

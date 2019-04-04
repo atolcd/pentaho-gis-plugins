@@ -2,8 +2,8 @@ package org.wololo.geojson;
 
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Crs extends GeoJSON {
     private final String type;

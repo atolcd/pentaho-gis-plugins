@@ -4,7 +4,7 @@
 
   <groupId>com.atolcd.pentaho.di</groupId>
   <artifactId>pentaho-gis-plugins-holder</artifactId>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
   <packaging>pom</packaging>
 
   <name>Pentaho's Data Integrator GIS Plugins and modified deps</name>
