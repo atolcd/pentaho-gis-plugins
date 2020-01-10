@@ -15,7 +15,7 @@ Check out the project if you have not already done so :
         git clone git://github.com/atolcd/pentaho-gis-plugins.git
         cd pentaho-gis-plugins
 
-Install Java 6+, Maven and PDI.
+Install Java 8+, Maven and PDI.
 
 To package the plugins, run the following commands from the base project directory :
 
