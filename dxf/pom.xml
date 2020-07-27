@@ -32,12 +32,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   </build>
 
   <repositories>
-    <!-- Local repository -->
-    <repository>
-      <id>local-maven-repo</id>
-      <name>Local Maven Repo</name>
-      <url>file://${project.basedir}/../local-maven-repo</url>
-    </repository>
     <repository>
       <id>52north.org-releases</id>
       <name>52north.org-releases</name>
@@ -71,6 +65,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <id>axiomalaska</id>
       <name>axiomalaska</name>
       <url>http://nexus.axiomalaska.com/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+    <id>OpenKM</id>
+    <name>OpenKM Repository</name>
+    <url>http://maven.openkm.com/</url>
     </repository>
   </repositories>
 
