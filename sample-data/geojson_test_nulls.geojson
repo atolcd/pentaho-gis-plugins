@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"name": "geojson_test",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "numeric_prop": 1, "cause": "an integer" }, "geometry": { "type": "Point", "coordinates": [ 2.357265851625572, 48.879543984750278 ] } },
+{ "type": "Feature", "properties": { "numeric_prop": "{}", "cause": "an empty object" }, "geometry": { "type": "Point", "coordinates": [ 2.344267096066682, 48.853824832535921 ] } },
+{ "type": "Feature", "properties": { "numeric_prop": null, "cause": "a null property" }, "geometry": { "type": "Point", "coordinates": [ 2.334098578028437, 48.861485103910752 ] } }
+]
+}

@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "geojson_test",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "numeric_prop": 1, "cause": "OK" }, "geometry": { "type": "Point", "coordinates": [ 2.357265851625572, 48.879543984750278 ] } },
+{ "type": "Feature", "properties": { "numeric_prop": 2, "cause": "extra property" ,"extra_prop":"extra value"}, "geometry": { "type": "Point", "coordinates": [ 2.314871605171158, 48.893936256589363 ] } },
+{ "type": "Feature", "properties": { "numeric_prop": 3, "cause": "another extra property" ,"extra_prop2":"extra value"}, "geometry": { "type": "Point", "coordinates": [ 2.314871605171158, 48.893936256589363 ] } },
+{ "type": "Feature", "properties": {                    "cause": "missing property" ,"extra_prop2":"extra value"}, "geometry": { "type": "Point", "coordinates": [ 2.314871605171158, 48.893936256589363 ] } }
+]
+}
