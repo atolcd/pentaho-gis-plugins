@@ -22,12 +22,13 @@ package com.atolcd.pentaho.di.gis.io;
  * #L%
  */
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.pentaho.di.core.exception.KettleException;
 import org.wololo.geojson.Crs;
@@ -43,133 +44,152 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class GeoJSONReader extends AbstractFileReader {
 
-    private String geoJsonFileName;
-    private boolean geoJsonFileExist;
-    private GeoJSON json;
+  private String geoJsonFileName;
+  private boolean geoJsonFileExist;
+  private GeoJSON json;
 
-    public GeoJSONReader(String fileName, String geometryFieldName, String charsetName) throws KettleException {
+  public GeoJSONReader(String fileName, String geometryFieldName, String charsetName) throws KettleException {
 
-        super(null, geometryFieldName, charsetName);
+    super(null, geometryFieldName, charsetName);
 
-        this.geoJsonFileExist = new File(checkFilename(fileName).getFile()).exists();
+    this.geoJsonFileExist = new File(checkFilename(fileName).getFile()).exists();
 
-        if (!this.geoJsonFileExist) {
-            throw new KettleException("Missing " + fileName + " file");
-        } else {
-            this.geoJsonFileName = checkFilename(fileName).getFile();
-        }
-
-        this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));
-        File file = new File(this.geoJsonFileName);
-        this.json = GeoJSONFactory.create(file);
-
-        if (this.json instanceof FeatureCollection) {
-
-            org.wololo.geojson.Feature geoJsonfeature = ((FeatureCollection) json).getFeatures()[0];
-            for (Map.Entry<String, Object> entry : geoJsonfeature.getProperties().entrySet()) {
-
-                Field field = null;
-                String fieldName = entry.getKey();
-                Object value = entry.getValue();
-
-                if (value instanceof String) {
-
-                    field = new Field(fieldName, FieldType.STRING, null, null);
-
-                } else if (value instanceof Integer) {
-
-                    field = new Field(fieldName, FieldType.LONG, null, null);
-
-                } else if (value instanceof Boolean) {
-
-                    field = new Field(fieldName, FieldType.BOOLEAN, null, null);
-
-                } else if (value instanceof Double) {
-
-                    field = new Field(fieldName, FieldType.DOUBLE, null, null);
-
-                } else if (value instanceof Date) {
-
-                    field = new Field(fieldName, FieldType.DATE, null, null);
-
-                }
-
-                this.fields.add(field);
-
-            }
-
-        } else {
-
-            throw new KettleException("Error initialize reader : only FeatureCollection is supported");
-
-        }
+    if (!this.geoJsonFileExist) {
+      throw new KettleException("Missing " + fileName + " file");
+    } else {
+      this.geoJsonFileName = checkFilename(fileName).getFile();
     }
 
-    public List<Feature> getFeatures() {
+    this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));
+    File file = new File(this.geoJsonFileName);
+    this.json = GeoJSONFactory.create(file);
 
-        List<Feature> features = new ArrayList<Feature>();
-        org.wololo.jts2geojson.GeoJSONReader geoJSONReader = new org.wololo.jts2geojson.GeoJSONReader();
-        FeatureCollection featureCollection = (FeatureCollection) json;
+    if (this.json instanceof FeatureCollection) {
 
-        Crs crs = featureCollection.getCrs();
-        int srid = 0;
+      FeatureCollection featCollection = ((FeatureCollection) json);
+      org.wololo.geojson.Feature[] feats = featCollection.getFeatures();
 
-        if (crs != null) {
+      Map<String, Object> allProps = new HashMap<String, Object>();
 
-            if (crs.getType().equalsIgnoreCase("name") && crs.getProperties().containsKey("name")) {
+      // Loop over all properties of all features
+      for (org.wololo.geojson.Feature f : feats) {
+        Map<String, Object> props = f.getProperties();
 
-                try {
+        for (Entry<String, Object> propNameValue : props.entrySet()) {
+          // collect all properties with non-null values, keep the value of the last one seen
+          if (propNameValue.getValue() != null) {
+            allProps.put(propNameValue.getKey(), propNameValue.getValue());
+          }
+        }
+      }
 
-                    String csrName = (String) crs.getProperties().get("name");
-                    int sridIndex = csrName.lastIndexOf(':');
-                    srid = Integer.valueOf(csrName.substring(sridIndex + 1, csrName.length()));
+      // create fields based on the complete set of properties
+      for (Map.Entry<String, Object> entry : allProps.entrySet()) {
 
-                } catch (Exception e) {
-                    srid = 0;
-                }
-            }
+        String fieldName = entry.getKey();
+        Object value = entry.getValue();
+
+        // default FieldType to String to catch nulls and JSON objects
+        Field field = new Field(fieldName, FieldType.STRING, null, null);
+
+        if (value instanceof String) {
+
+          field = new Field(fieldName, FieldType.STRING, null, null);
+
+        } else if (value instanceof Integer) {
+
+          field = new Field(fieldName, FieldType.LONG, null, null);
+
+        } else if (value instanceof Boolean) {
+
+          field = new Field(fieldName, FieldType.BOOLEAN, null, null);
+
+        } else if (value instanceof Double) {
+
+          field = new Field(fieldName, FieldType.DOUBLE, null, null);
+
+        } else if (value instanceof Date) {
+
+          field = new Field(fieldName, FieldType.DATE, null, null);
 
         }
 
-        // Traitement des features
-        org.wololo.geojson.Feature geoJsonfeatures[] = featureCollection.getFeatures();
-        if (this.limit == 0 || this.limit > geoJsonfeatures.length || this.limit < 0) {
-            this.limit = geoJsonfeatures.length;
-        }
+        this.fields.add(field);
 
-        for (int i = 0; i < this.limit; i++) {
+      }
 
-            org.wololo.geojson.Feature geoJsonfeature = geoJsonfeatures[i];
-            Feature feature = new Feature();
-            for (Field field : fields) {
+    } else {
 
-                if (field.getType().equals(FieldType.GEOMETRY)) {
-
-                    Geometry geometry = geoJSONReader.read(geoJsonfeature.getGeometry());
-
-                    if (this.forceTo2DGeometry) {
-                        geometry = GeometryUtils.get2DGeometry(geometry);
-                    }
-
-                    if (this.forceToMultiGeometry) {
-                        geometry = GeometryUtils.getMultiGeometry(geometry);
-                    }
-
-                    geometry.setSRID(srid);
-                    feature.addValue(field, geometry);
-
-                } else {
-                    feature.addValue(field, geoJsonfeature.getProperties().get(field.getName()));
-                }
-
-            }
-
-            features.add(feature);
-
-        }
-
-        return features;
+      throw new KettleException("Error initialize reader : only FeatureCollection is supported");
 
     }
+  }
+
+  public List<Feature> getFeatures() {
+
+    List<Feature> features = new ArrayList<Feature>();
+    org.wololo.jts2geojson.GeoJSONReader geoJSONReader = new org.wololo.jts2geojson.GeoJSONReader();
+    FeatureCollection featureCollection = (FeatureCollection) json;
+
+    Crs crs = featureCollection.getCrs();
+    int srid = 0;
+
+    if (crs != null) {
+
+      if (crs.getType().equalsIgnoreCase("name") && crs.getProperties().containsKey("name")) {
+
+        try {
+
+          String csrName = (String) crs.getProperties().get("name");
+          int sridIndex = csrName.lastIndexOf(':');
+          srid = Integer.valueOf(csrName.substring(sridIndex + 1, csrName.length()));
+
+        } catch (Exception e) {
+          srid = 0;
+        }
+      }
+
+    }
+
+    // Traitement des features
+    org.wololo.geojson.Feature geoJsonfeatures[] = featureCollection.getFeatures();
+    if (this.limit == 0 || this.limit > geoJsonfeatures.length || this.limit < 0) {
+      this.limit = geoJsonfeatures.length;
+    }
+
+    for (int i = 0; i < this.limit; i++) {
+
+      org.wololo.geojson.Feature geoJsonfeature = geoJsonfeatures[i];
+      Feature feature = new Feature();
+      for (Field field : fields) {
+
+        if (field.getType().equals(FieldType.GEOMETRY)) {
+
+          Geometry geometry = geoJSONReader.read(geoJsonfeature.getGeometry());
+
+          if (this.forceTo2DGeometry) {
+            geometry = GeometryUtils.get2DGeometry(geometry);
+          }
+
+          if (this.forceToMultiGeometry) {
+            geometry = GeometryUtils.getMultiGeometry(geometry);
+          }
+
+          geometry.setSRID(srid);
+          feature.addValue(field, geometry);
+
+        } else {
+          feature.addValue(field, geoJsonfeature.getProperties().get(field.getName()));
+        }
+
+      }
+
+      features.add(feature);
+
+    }
+
+    return features;
+
+  }
 
 }
