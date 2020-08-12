@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
@@ -415,9 +415,9 @@ public class GisRelateDialog extends BaseStepDialog implements StepDialogInterfa
             }
         });
 
-        wFirstGeometryField.setItems(getFieldsFromType(ValueMeta.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY)));
-        wSecondGeometryField.setItems(getFieldsFromType(ValueMeta.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY)));
-        wDistanceField.setItems(getFieldsFromType(ValueMeta.getTypeDesc(ValueMeta.TYPE_NUMBER)));
+        wFirstGeometryField.setItems(getFieldsFromType(ValueMetaBase.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY)));
+        wSecondGeometryField.setItems(getFieldsFromType(ValueMetaBase.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY)));
+        wDistanceField.setItems(getFieldsFromType(ValueMetaBase.getTypeDesc(ValueMetaBase.TYPE_NUMBER)));
         loadData();
         // setReturnTypeFlags();
         // setOperatorFlags

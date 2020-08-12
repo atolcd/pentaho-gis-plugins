@@ -60,6 +60,19 @@ public abstract class AbstractFileReader implements FileReader {
 
     }
 
+    public Field getField(String name){
+    	
+    	for(Field field : this.fields){
+    		
+    		if(field.getName().equalsIgnoreCase(name)){
+    			return field;
+    		}
+    	}
+    	
+    	return null;
+        
+    }
+
     public List<Field> getFields() {
         return fields;
     }

@@ -24,6 +24,17 @@ package com.atolcd.pentaho.di.trans.steps.gisfileinput;
 
 import java.util.Iterator;
 
+import com.atolcd.pentaho.di.gis.io.AbstractFileReader;
+import com.atolcd.pentaho.di.gis.io.DXFReader;
+import com.atolcd.pentaho.di.gis.io.GPXReader;
+import com.atolcd.pentaho.di.gis.io.GeoJSONReader;
+import com.atolcd.pentaho.di.gis.io.GeoPackageReader;
+import com.atolcd.pentaho.di.gis.io.MapInfoReader;
+import com.atolcd.pentaho.di.gis.io.ShapefileReader;
+import com.atolcd.pentaho.di.gis.io.SpatialiteReader;
+import com.atolcd.pentaho.di.gis.io.features.Feature;
+import com.atolcd.pentaho.di.gis.io.features.FeatureConverter;
+
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMeta;
@@ -31,20 +42,10 @@ import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
-import com.atolcd.pentaho.di.gis.io.AbstractFileReader;
-import com.atolcd.pentaho.di.gis.io.DXFReader;
-import com.atolcd.pentaho.di.gis.io.GeoJSONReader;
-import com.atolcd.pentaho.di.gis.io.MapInfoReader;
-import com.atolcd.pentaho.di.gis.io.ShapefileReader;
-import com.atolcd.pentaho.di.gis.io.SpatialiteReader;
-import com.atolcd.pentaho.di.gis.io.features.Feature;
-import com.atolcd.pentaho.di.gis.io.features.FeatureConverter;
-
-public class GisFileInput extends BaseStep implements StepInterface {
+public class GisFileInput extends BaseStep {
 
     private GisFileInputData data;
     private GisFileInputMeta meta;
@@ -76,12 +77,34 @@ public class GisFileInput extends BaseStep implements StepInterface {
                 fileReader = new SpatialiteReader(environmentSubstitute(meta.getInputFileName()), tableName, meta.getEncoding());
 
             } else if (meta.getInputFormat().equalsIgnoreCase("DXF")) {
+                String readXData = environmentSubstitute((String) meta.getInputParameterValue("READ_XDATA"));
                 String circleAsPolygon = environmentSubstitute((String) meta.getInputParameterValue("CIRCLE_AS_POLYGON"));
                 String ellipseAsPolygon = environmentSubstitute((String) meta.getInputParameterValue("ELLIPSE_AS_POLYGON"));
                 String lineAsPolygon = environmentSubstitute((String) meta.getInputParameterValue("LINE_AS_POLYGON"));
 
-                fileReader = new DXFReader(environmentSubstitute(meta.getInputFileName()), environmentSubstitute(meta.getGeometryFieldName()), meta.getEncoding(),
-                        Boolean.parseBoolean(circleAsPolygon), Boolean.parseBoolean(ellipseAsPolygon), Boolean.parseBoolean(lineAsPolygon));
+                fileReader = new DXFReader(
+                    environmentSubstitute(meta.getInputFileName()),
+                    environmentSubstitute(meta.getGeometryFieldName()),
+                    meta.getEncoding(),
+                    Boolean.parseBoolean(circleAsPolygon),
+                    Boolean.parseBoolean(ellipseAsPolygon),
+                    Boolean.parseBoolean(lineAsPolygon),
+                    Boolean.parseBoolean(readXData)
+                );
+            } else if (meta.getInputFormat().equalsIgnoreCase("GPX")) {
+            	fileReader = new GPXReader(environmentSubstitute(meta.getInputFileName()),
+            		environmentSubstitute(meta.getGeometryFieldName()),
+            		meta.getEncoding()
+            	);
+
+            } else if (meta.getInputFormat().equalsIgnoreCase("GEOPACKAGE")) {
+
+            	fileReader = new GeoPackageReader(
+        			environmentSubstitute(meta.getInputFileName()),
+        			environmentSubstitute((String) meta.getInputParameterValue("DB_TABLE_NAME")),
+        			environmentSubstitute(meta.getGeometryFieldName()),
+        			meta.getEncoding()
+        		);
             }
 
             String forceToMultigeometry = environmentSubstitute((String) meta.getInputParameterValue("FORCE_TO_MULTIGEOMETRY"));

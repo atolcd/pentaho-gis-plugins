@@ -24,15 +24,15 @@
 
 package fr.michaelm.jump.drivers.dxf;
 
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.LinkedHashMap;
+import java.io.IOException;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
- * The LTYPE item in the TABLES section There is a static reader to read the
- * item in a DXF file and a toString method able to write it in a DXF form
- * 
+ * The LTYPE item in the TABLES section
+ * There is a static reader to read the item in a DXF file
+ * and a toString method able to write it in a DXF form
  * @author Micha&euml;l Michaud
  */
 public class DxfTABLE_LTYPE_ITEM extends DxfTABLE_ITEM {
@@ -46,7 +46,7 @@ public class DxfTABLE_LTYPE_ITEM extends DxfTABLE_ITEM {
         this.description = "";
         this.alignment = 0;
         this.patternLength = 1f;
-        this.pattern = new float[] { 1f };
+        this.pattern = new float[]{1f};
     }
 
     public DxfTABLE_LTYPE_ITEM(String name, int flags, String description, int alignment, float patternLength, float[] pattern) {
@@ -56,70 +56,41 @@ public class DxfTABLE_LTYPE_ITEM extends DxfTABLE_ITEM {
         this.patternLength = patternLength;
         this.pattern = pattern;
     }
+    
+    public String getDescription() {return description;}
+    public void setDescription(String description) {this.description = description;}
+    public int getAlignment() {return alignment;}
+    public void setAlignment(int alignment) {this.alignment = alignment;}
+    public float getPatternLength() {return patternLength;}
+    public void setPatternLength(float patternLength) {this.patternLength = patternLength;}
+    public float[] getPattern() {return pattern;}
+    public void setPattern(float[] pattern) {this.pattern = pattern;}
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getAlignment() {
-        return alignment;
-    }
-
-    public void setAlignment(int alignment) {
-        this.alignment = alignment;
-    }
-
-    public float getPatternLength() {
-        return patternLength;
-    }
-
-    public void setPatternLength(float patternLength) {
-        this.patternLength = patternLength;
-    }
-
-    public float[] getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(float[] pattern) {
-        this.pattern = pattern;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Map readTable(RandomAccessFile raf) throws IOException {
+    public static Map<String,DxfTABLE_LTYPE_ITEM> readTable(RandomAccessFile raf) throws IOException {
         DxfTABLE_LTYPE_ITEM item = new DxfTABLE_LTYPE_ITEM("DEFAULT", 0);
-        Map table = new LinkedHashMap();
+        Map<String,DxfTABLE_LTYPE_ITEM> table  = new LinkedHashMap<String,DxfTABLE_LTYPE_ITEM>();
         DxfGroup group = null;
         int patternDashCount = 0;
         while (group != null && !group.equals(ENDTAB)) {
             group = DxfGroup.readGroup(raf);
             if (group.equals(LTYPE)) {
                 item = new DxfTABLE_LTYPE_ITEM("DEFAULT", 0);
-            } else if (group.getCode() == 2) {
+            }
+            else if (group.getCode()==2) {
                 item.setName(group.getValue());
                 table.put(item.getName(), item);
-            } else if (group.getCode() == 5) {
-            } // tag appeared in version 13 of DXF
-            else if (group.getCode() == 100) {
-            } // tag appeared in version 13 of DXF
-            else if (group.getCode() == 70) {
-                item.setFlags(group.getIntValue());
-            } else if (group.getCode() == 3) {
-                item.setDescription(group.getValue());
-            } else if (group.getCode() == 72) {
-                item.setAlignment(group.getIntValue());
-            } else if (group.getCode() == 73) {
-                item.setPattern(new float[group.getIntValue()]);
-            } else if (group.getCode() == 40) {
-                item.setPatternLength(group.getFloatValue());
-            } else if (group.getCode() == 49 && patternDashCount < item.getPattern().length) {
-                item.getPattern()[patternDashCount++] = group.getFloatValue();
-            } else {
             }
+            else if (group.getCode()==5) {}   // tag appeared in version 13 of DXF
+            else if (group.getCode()==100) {} // tag appeared in version 13 of DXF
+            else if (group.getCode()==70) {item.setFlags(group.getIntValue());}
+            else if (group.getCode()==3) {item.setDescription(group.getValue());}
+            else if (group.getCode()==72) {item.setAlignment(group.getIntValue());}
+            else if (group.getCode()==73) {item.setPattern(new float[group.getIntValue()]);}
+            else if (group.getCode()==40) {item.setPatternLength(group.getFloatValue());}
+            else if (group.getCode()==49 && patternDashCount < item.getPattern().length) {
+                item.getPattern()[patternDashCount++] = group.getFloatValue();
+            }
+            else {}
         }
         return table;
     }
@@ -130,7 +101,7 @@ public class DxfTABLE_LTYPE_ITEM extends DxfTABLE_ITEM {
         sb.append(DxfGroup.toString(72, alignment));
         sb.append(DxfGroup.toString(73, pattern.length));
         sb.append(DxfGroup.toString(40, patternLength, 3));
-        for (int i = 0; i < pattern.length; i++) {
+        for (int i = 0 ; i < pattern.length ; i++) {
             sb.append(DxfGroup.toString(49, pattern[i], 3));
         }
         return sb.toString();

@@ -585,7 +585,7 @@ public class GisGroupByDialog extends BaseStepDialog implements StepDialogInterf
     }
 
     private void ok() {
-        if (Const.isEmpty(wStepname.getText())) {
+        if (wStepname.getText().isEmpty()) {
             return;
         }
 

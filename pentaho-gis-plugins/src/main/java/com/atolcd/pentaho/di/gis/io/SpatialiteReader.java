@@ -22,7 +22,6 @@ package com.atolcd.pentaho.di.gis.io;
  * #L%
  */
 
-
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,12 +35,15 @@ import com.atolcd.gis.spatialite.Table;
 import com.atolcd.pentaho.di.gis.io.features.Feature;
 import com.atolcd.pentaho.di.gis.io.features.Field;
 import com.atolcd.pentaho.di.gis.io.features.Field.FieldType;
+import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class SpatialiteReader extends AbstractFileReader {
 
     private String spatialiteFileName;
     private boolean spatialiteFileExist;
     private Database database;
+    private boolean listContent;
 
     public SpatialiteReader(String fileName, String tableName, String charsetName) throws KettleException {
 
@@ -55,39 +57,59 @@ public class SpatialiteReader extends AbstractFileReader {
             this.spatialiteFileName = checkFilename(fileName).getFile();
         }
 
+        if(tableName.equalsIgnoreCase("*")){
+            this.listContent = true;
+        }else{
+            this.listContent = false;
+        } 
+
         this.database = new Database();
 
         try {
 
             database.open(this.spatialiteFileName);
-            Table dbTable = database.getTable(this.layerName);
 
-            for (com.atolcd.gis.spatialite.Field dbField : dbTable.getFields()) {
+            //Si liste de contenu
+        	if(this.listContent){
 
-                Field field = null;
+        		this.fields.add(new Field("table_name",FieldType.STRING,null,null));
+        		this.fields.add(new Field("is_spatial",FieldType.BOOLEAN,null,null));
+        		
+        	}else{
+                Table dbTable = database.getTable(this.layerName);
 
-                if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_GEOMETRY)) {
-                    field = new Field(dbField.getName(), FieldType.GEOMETRY, null, null);
+                //Si table non trouvée
+	        	if(dbTable == null){
+	        		throw new KettleException("Error initialize reader : Table " + this.layerName + " not found");
+	        	}
 
-                } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_INTEGER)) {
-                    field = new Field(dbField.getName(), FieldType.LONG, null, null);
+                for (com.atolcd.gis.spatialite.Field dbField : dbTable.getFields()) {
 
-                } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_NONE)) {
-                    field = new Field(dbField.getName(), FieldType.BINARY, null, null);
+                    Field field = null;
 
-                } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_NUMERIC)) {
-                    field = new Field(dbField.getName(), FieldType.DOUBLE, null, null);
+                    if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_GEOMETRY)) {
+                        field = new Field(dbField.getName(), FieldType.GEOMETRY, null, null);
 
-                } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_REAL)) {
+                    } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_INTEGER)) {
+                        field = new Field(dbField.getName(), FieldType.LONG, null, null);
 
-                    field = new Field(dbField.getName(), FieldType.DOUBLE, null, null);
+                    } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_NONE)) {
+                        field = new Field(dbField.getName(), FieldType.BINARY, null, null);
 
-                } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_TEXT)) {
+                    } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_NUMERIC)) {
+                        field = new Field(dbField.getName(), FieldType.DOUBLE, null, null);
 
-                    field = new Field(dbField.getName(), FieldType.STRING, null, null);
+                    } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_REAL)) {
+
+                        field = new Field(dbField.getName(), FieldType.DOUBLE, null, null);
+
+                    } else if (dbField.getTypeAffinity().equalsIgnoreCase(com.atolcd.gis.spatialite.Field.TYPE_TEXT)) {
+
+                        field = new Field(dbField.getName(), FieldType.STRING, null, null);
+                    }
+
+                    this.fields.add(field);
                 }
-
-                this.fields.add(field);
             }
 
             database.close();
@@ -107,17 +129,43 @@ public class SpatialiteReader extends AbstractFileReader {
         try {
 
             database.open(this.spatialiteFileName);
-            Table dbTable = database.getTable(this.layerName);
 
-            for (Row row : this.database.getRows(dbTable, limit)) {
+            //Si liste de contenu
+            if(this.listContent){
+            	
+            	for(Table dbTable : database.getTables()){
+            		
+            		  Feature feature = new Feature();
+            		  feature.addValue(this.getField("table_name"), dbTable.getName());
+            		  feature.addValue(this.getField("is_spatial"), dbTable.isSpatial());
+            		  features.add(feature);
+            	}
+            	
+            	
+            }else{
+                Table dbTable = database.getTable(this.layerName);
 
-                Feature feature = new Feature();
-                for (Field field : this.fields) {
+                for (Row row : this.database.getRows(dbTable, limit)) {
 
-                    feature.addValue(field, row.getValue(field.getName()));
+                    Feature feature = new Feature();
+                    for (Field field : this.fields) {
+                        Object value = row.getValue(field.getName());
+	
+	                	if(field.getType().equals(FieldType.GEOMETRY)){
+	                		if (this.forceTo2DGeometry) {
+	                			value = GeometryUtils.get2DGeometry((Geometry) value);
+	                		}
+	
+	                		if (this.forceToMultiGeometry) {
+	                			value = GeometryUtils.getMultiGeometry((Geometry) value);
+	                		}
+	                	}
+
+                        feature.addValue(field, row.getValue(field.getName()));
+                    }
+                    features.add(feature);
+
                 }
-                features.add(feature);
-
             }
 
             database.close();

@@ -28,6 +28,7 @@ import java.util.List;
 import org.pentaho.di.core.exception.KettleException;
 
 import com.atolcd.gis.dxf.Entity;
+import com.atolcd.gis.dxf.ExtendedData;
 import com.atolcd.gis.dxf.Layer;
 import com.atolcd.pentaho.di.gis.io.features.Feature;
 import com.atolcd.pentaho.di.gis.io.features.Field;
@@ -41,8 +42,9 @@ public class DXFReader extends AbstractFileReader {
     private boolean circleAsPolygon;
     private boolean ellipseAsPolygon;
     private boolean lineAsPolygon;
+    private boolean readXData;
 
-    public DXFReader(String fileName, String geometryFieldName, String charsetName, boolean circleAsPolygon, boolean ellipseAsPolygon, boolean lineAsPolygon)
+    public DXFReader(String fileName, String geometryFieldName, String charsetName, boolean circleAsPolygon, boolean ellipseAsPolygon, boolean lineAsPolygon, boolean readXData)
             throws KettleException {
         super(null, geometryFieldName, charsetName);
 
@@ -54,10 +56,14 @@ public class DXFReader extends AbstractFileReader {
             } else {
                 this.dxfFileName = checkFilename(fileName).getFile();
             }
+            this.readXData = readXData;
 
             this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));
             this.fields.add(new Field("Layer", FieldType.STRING, null, null));
             this.fields.add(new Field("Text", FieldType.STRING, null, null));
+            if(this.readXData){
+				this.fields.add(new Field("XData", FieldType.STRING, null, null));
+			}
 
             this.circleAsPolygon = circleAsPolygon;
             this.ellipseAsPolygon = ellipseAsPolygon;
@@ -102,6 +108,24 @@ public class DXFReader extends AbstractFileReader {
                         feature.addValue(this.fields.get(0), entity.getGeometry());
                         feature.addValue(this.fields.get(1), layer.getName());
                         feature.addValue(this.fields.get(2), entity.getText());
+
+                        if(this.readXData){
+
+							List<ExtendedData> xDatas = entity.getExtendedData();
+							String xmlXData = "";
+
+							if(xDatas.isEmpty()){
+								xmlXData = "<attributes/>";
+							}else{
+
+								xmlXData = "<attributes>";
+								for(ExtendedData xData : xDatas){
+									xmlXData+="<attribute name = \"" + xData.getName() + "\" type = \"" + xData.getType() + "\">" + String.valueOf(xData.getValue()) + "</attribute>";
+								}
+								xmlXData+="</attributes>";
+								feature.addValue(this.fields.get(3), xmlXData);
+							}
+						}
 
                         features.add(feature);
                         entityNumber += 1;

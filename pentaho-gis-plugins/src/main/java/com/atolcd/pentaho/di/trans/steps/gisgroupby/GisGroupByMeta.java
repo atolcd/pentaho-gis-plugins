@@ -33,7 +33,7 @@ import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -99,6 +99,7 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
     public static final int TYPE_GROUP_GEOMETRY_UNION = 19;
     public static final int TYPE_GROUP_GEOMETRY_EXTENT = 20;
     public static final int TYPE_GROUP_GEOMETRY_AGG = 21;
+    public static final int TYPE_GROUP_GEOMETRY_DISSOLVE = 22;
 
     // GIS : Ajout d'opérateurs d'aggrégation
     public static final String[] typeGroupCode = /*
@@ -107,7 +108,7 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
                                                   * TRANSLATE!
                                                   */
     { "-", "SUM", "AVERAGE", "MEDIAN", "PERCENTILE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA", "FIRST", "LAST", "FIRST_INCL_NULL", "LAST_INCL_NULL", "CUM_SUM", "CUM_AVG",
-            "STD_DEV", "CONCAT_STRING", "COUNT_DISTINCT", "COUNT_ANY", "GEOMETRY_UNION", "GEOMETRY_EXTENT", "GEOMETRY_AGG" };
+        "STD_DEV", "CONCAT_STRING", "COUNT_DISTINCT", "COUNT_ANY", "GEOMETRY_UNION", "GEOMETRY_EXTENT", "GEOMETRY_AGG", "GEOMETRY_DISSOLVE" };
 
     public static final String[] typeGroupLongDesc = { "-", BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.SUM"),
             BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.AVERAGE"), BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.MEDIAN"),
@@ -121,7 +122,7 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
             BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
             // GIS : Ajout d'opérateurs d'aggrégation
             BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.GEOMETRY_UNION"), BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.GEOMETRY_EXTENT"),
-            BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.GEOMETRY_AGG"), };
+            BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.GEOMETRY_AGG"), BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.GEOMETRY_DISSOLVE")};
 
     /**
      * All rows need to pass, adding an extra row at the end of each
@@ -355,7 +356,7 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
             }
 
             String giveBackRow = XMLHandler.getTagValue(stepnode, "give_back_row");
-            if (Const.isEmpty(giveBackRow)) {
+            if (giveBackRow.isEmpty()) {
                 alwaysGivingBackOneRow = hasNumberOfValues;
             } else {
                 alwaysGivingBackOneRow = "Y".equalsIgnoreCase(giveBackRow);
@@ -470,6 +471,7 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
                 case TYPE_GROUP_GEOMETRY_UNION:
                 case TYPE_GROUP_GEOMETRY_EXTENT:
                 case TYPE_GROUP_GEOMETRY_AGG:
+                case TYPE_GROUP_GEOMETRY_DISSOLVE:
                     value_type = ValueMetaGeometry.TYPE_GEOMETRY;
                     break;
 
@@ -497,7 +499,7 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
                 }
 
                 if (value_type != ValueMetaInterface.TYPE_NONE) {
-                    ValueMetaInterface v = new ValueMeta(value_name, value_type);
+                    ValueMetaInterface v = new ValueMetaBase(value_name, value_type);
                     v.setOrigin(origin);
                     v.setLength(length, precision);
                     fields.addValueMeta(v);
@@ -507,8 +509,8 @@ public class GisGroupByMeta extends BaseStepMeta implements StepMetaInterface {
 
         if (passAllRows) {
             // If we pass all rows, we can add a line nr in the group...
-            if (addingLineNrInGroup && !Const.isEmpty(lineNrInGroupField)) {
-                ValueMetaInterface lineNr = new ValueMeta(lineNrInGroupField, ValueMetaInterface.TYPE_INTEGER);
+            if (addingLineNrInGroup && !lineNrInGroupField.isEmpty()) {
+                ValueMetaInterface lineNr = new ValueMetaBase(lineNrInGroupField, ValueMetaInterface.TYPE_INTEGER);
                 lineNr.setLength(ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0);
                 lineNr.setOrigin(origin);
                 fields.addValueMeta(lineNr);

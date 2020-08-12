@@ -34,14 +34,13 @@ import java.util.Set;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.trans.step.BaseStepData;
-import org.pentaho.di.trans.step.StepDataInterface;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  *
  */
-public class GisGroupByData extends BaseStepData implements StepDataInterface {
+public class GisGroupByData extends BaseStepData {
     public Object[] previous;
 
     /**

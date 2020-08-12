@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
@@ -208,7 +208,7 @@ public class GisGeometryInfoDialog extends BaseStepDialog implements StepDialogI
             }
         });
 
-        wGeometryField.setItems(getFieldsFromType(ValueMeta.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY)));
+        wGeometryField.setItems(getFieldsFromType(ValueMetaBase.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY)));
         loadData();
         input.setChanged(changed);
         setSize();

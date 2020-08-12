@@ -22,7 +22,6 @@ package com.atolcd.pentaho.di.gis.utils;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +38,13 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.util.GeometryExtracter;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
+import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
 
 public final class GeometryUtils {
 
@@ -435,6 +436,26 @@ public final class GeometryUtils {
     }
 
     /**
+     * Returns geometry with less precision
+     * @param geometry
+     * @param decCount
+     * @return
+     */
+    public static Geometry getLessPrecisionGeometry(Geometry geometry, int decCount) {
+    	
+        Geometry outputGeometry = null;
+        if (!isNullOrEmptyGeometry(geometry)) {
+            
+           decCount = Math.abs(decCount);
+           double scale = Math.pow(10, decCount);
+           outputGeometry = GeometryPrecisionReducer.reduce(geometry, new PrecisionModel(scale));
+        }
+       
+        return getNonEmptyGeometry(geometry.getSRID(), outputGeometry);
+       
+   }
+
+    /**
      * Returns 2D geometry from input geometry
      * 
      * @param geometry
@@ -580,6 +601,25 @@ public final class GeometryUtils {
     }
 
     /**
+     * Returns Geometry Collection from input geometry
+     * 
+     * @param geometry
+     * @return
+     */
+    public static Geometry getGeometryCollection(Geometry geometry) {
+    	
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Geometry outputGeometry = null;
+
+        if (!isNullOrEmptyGeometry(geometry)) {
+            outputGeometry = geometryFactory.createGeometryCollection(new Geometry[]{geometry});
+        }
+        
+        return getNonEmptyGeometry(geometry.getSRID(), outputGeometry);
+       
+   }
+
+    /**
      * Returns metadatas from a GeometryCollection geometry
      * 
      * @param geometryCollection
@@ -646,57 +686,4 @@ public final class GeometryUtils {
         return getNonEmptyGeometry(geometry.getSRID(), outputGeometry);
 
     }
-
-    /*
-     * public static Geometry asCurve(Geometry geometry){
-     * 
-     * GeometryFactory geometryFactory = new GeometryFactory();
-     * 
-     * if(!isNullOrEmptyGeometry(geometry)){ if(geometry.getDimension() >= 1){
-     * 
-     * LineMerger lineMerger = new LineMerger(); lineMerger.add(geometry);
-     * LineString[] lineStrings =
-     * GeometryFactory.toLineStringArray(lineMerger.getMergedLineStrings());
-     * Geometry outputGeometry =
-     * geometryFactory.createMultiLineString(lineStrings);
-     * outputGeometry.setSRID(geometry.getSRID());
-     * 
-     * if(!isNullOrEmptyGeometry(outputGeometry) &&
-     * outputGeometry.getNumGeometries()==1){ outputGeometry =
-     * outputGeometry.getGeometryN(0);
-     * outputGeometry.setSRID(geometry.getSRID()); }
-     * 
-     * return getNonEmptyGeometry(outputGeometry);
-     * 
-     * }else{ return null; } }else{ return null; } }
-     * 
-     * public static Geometry asSurface(Geometry geometry){
-     * 
-     * GeometryFactory geometryFactory = new GeometryFactory();
-     * 
-     * if(!isNullOrEmptyGeometry(geometry)){
-     * 
-     * if(geometry.getDimension() == 2){
-     * 
-     * return getNonEmptyGeometry(geometry);
-     * 
-     * }else if(geometry.getDimension() == 1){
-     * 
-     * LineMerger lineMerger = new LineMerger(); lineMerger.add(geometry);
-     * Polygonizer polygonizer = new Polygonizer();
-     * polygonizer.add(lineMerger.getMergedLineStrings()); Polygon[] polygons =
-     * GeometryFactory.toPolygonArray(polygonizer.getPolygons()); Geometry
-     * outputGeometry = geometryFactory.createMultiPolygon(polygons);
-     * outputGeometry.setSRID(geometry.getSRID());
-     * 
-     * if(!isNullOrEmptyGeometry(outputGeometry) &&
-     * outputGeometry.getNumGeometries()==1){ outputGeometry =
-     * outputGeometry.getGeometryN(0);
-     * outputGeometry.setSRID(outputGeometry.getSRID()); }
-     * 
-     * return getNonEmptyGeometry(outputGeometry);
-     * 
-     * }else{ return null; } }else{ return null; } }
-     */
-
 }

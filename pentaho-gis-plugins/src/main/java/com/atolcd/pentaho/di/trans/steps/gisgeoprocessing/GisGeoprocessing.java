@@ -23,25 +23,13 @@ package com.atolcd.pentaho.di.trans.steps.gisgeoprocessing;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.opensphere.geometry.algorithm.ConcaveHull;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowDataUtil;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.BaseStep;
-import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
-
 import com.atolcd.pentaho.di.core.row.value.ValueMetaGeometry;
 import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.vividsolutions.jts.algorithm.MinimumBoundingCircle;
 import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
@@ -66,9 +54,24 @@ import com.vividsolutions.jts.operation.buffer.BufferParameters;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
+import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
+import com.vividsolutions.jts.simplify.VWSimplifier;
 
-public class GisGeoprocessing extends BaseStep implements StepInterface {
+import org.apache.commons.lang.ArrayUtils;
+import org.opensphere.geometry.algorithm.ConcaveHull;
+import org.pentaho.di.core.Const;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.row.RowDataUtil;
+import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.trans.Trans;
+import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.BaseStep;
+import org.pentaho.di.trans.step.StepDataInterface;
+import org.pentaho.di.trans.step.StepMeta;
+import org.pentaho.di.trans.step.StepMetaInterface;
+
+public class GisGeoprocessing extends BaseStep {
 
     private GisGeoprocessingData data;
     private GisGeoprocessingMeta meta;
@@ -109,7 +112,7 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
                 distance = getInputRowMeta().getNumber(row, distanceFieldIndex);
 
                 if (distance == null) {
-                    throw new KettleException("Distance can not be null");
+                    throw new KettleException("Distance, area, threshold or decimal count can not be null");
                 }
 
             } else {
@@ -246,7 +249,7 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
                     try {
                         distanceValue = Double.parseDouble(environmentSubstitute(meta.getDistanceValue()));
                     } catch (Exception e) {
-                        throw new KettleException("Distance is not valid");
+                        throw new KettleException("Distance, area, threshold or decimal count is not valid");
                     }
                 }
 
@@ -462,6 +465,166 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
                     throw new KettleException("Distance can not be null");
                 }
 
+            } else if (operator.equalsIgnoreCase("SIMPLIFY_VW")) {
+
+                if (distance != null) {
+
+                    distance = Math.abs(distance);
+                    VWSimplifier simplifier = new VWSimplifier(inGeometry);
+                    simplifier.setDistanceTolerance(distance);
+                    outGeometry = simplifier.getResultGeometry();
+
+                } else {
+                    throw new KettleException("Distance can not be null");
+                }
+                
+            } else if (operator.equalsIgnoreCase("LESS_PRECISION")) {
+
+                if (distance != null) {
+                	outGeometry = GeometryUtils.getLessPrecisionGeometry(inGeometry, distance.intValue());
+
+                } else {
+                    throw new KettleException("Decimal count can not be null");
+                }
+            } else if (operator.equalsIgnoreCase("POLYGONIZE")) {
+
+            	Polygonizer polygonizer = new Polygonizer();
+            	polygonizer.add(inGeometry);
+            	outGeometry = geometryFactory.buildGeometry(polygonizer.getPolygons());
+
+            } else if (operator.equalsIgnoreCase("LINEMERGE")) {
+
+            	outGeometry = GeometryUtils.getMergedGeometry(inGeometry);
+            	
+            	
+            } else if (operator.equalsIgnoreCase("REMOVE_HOLES")) {
+
+            	if (distance != null) {
+
+            		if(inGeometry instanceof Polygon){
+
+            			Polygon polygon = (Polygon) inGeometry;
+            			List<LinearRing> rings = new ArrayList<LinearRing>();
+            			for(int i = 0; i < polygon.getNumInteriorRing(); i++){
+            				LinearRing currentRing = (LinearRing) polygon.getInteriorRingN(i);
+            				
+            				if(geometryFactory.createPolygon(currentRing).getArea() > distance){
+            					rings.add(currentRing);
+            				}
+            			}
+
+            			outGeometry =  geometryFactory.createPolygon(
+            				(LinearRing) polygon.getExteriorRing(),
+            				rings.toArray(new LinearRing[rings.size()])
+            			);
+
+            		} else if (inGeometry instanceof MultiPolygon){
+            			
+            			Polygon[] polygons = new Polygon[inGeometry.getNumGeometries()];
+            			for(int i = 0; i < polygons.length; i++){
+            				polygons[i] = (Polygon) getOneGeometryGeoprocessing("REMOVE_HOLES", inGeometry.getGeometryN(i), distance);
+            			}
+            			outGeometry = geometryFactory.createMultiPolygon(polygons);
+
+            		}
+
+            	} else {
+            		throw new KettleException("Area can not be null");
+            	}	
+
+            } else if (operator.equalsIgnoreCase("LARGEST_POLYGON")) {
+            	
+            	if(inGeometry instanceof Polygon){
+            		outGeometry =  (Geometry) inGeometry.clone();
+            	
+            	} else if (inGeometry instanceof MultiPolygon){
+            		Polygon largestPolygon =  (Polygon) inGeometry.getGeometryN(0);
+            		for(int i = 0; i < inGeometry.getNumGeometries(); i++){
+
+            			Polygon currentPolygon = (Polygon)inGeometry.getGeometryN(i);
+            			if(currentPolygon.getArea() > largestPolygon.getArea()){
+            				largestPolygon = currentPolygon;
+            			}
+
+            		}
+            		outGeometry = largestPolygon;
+            		
+            	}
+
+            } else if (operator.equalsIgnoreCase("SMALLEST_POLYGON")) {
+	  
+            	if(inGeometry instanceof Polygon){
+            		outGeometry =  (Geometry) inGeometry.clone();
+            	
+            	} else if (inGeometry instanceof MultiPolygon){
+            		Polygon smallestPolygon =  (Polygon) inGeometry.getGeometryN(0);
+            		for(int i = 0; i < inGeometry.getNumGeometries(); i++){
+
+            			Polygon currentPolygon = (Polygon)inGeometry.getGeometryN(i);
+            			if(currentPolygon.getArea() < smallestPolygon.getArea()){
+            				smallestPolygon = currentPolygon;
+            			}
+
+            		}
+            		outGeometry = smallestPolygon;
+            		
+            	}
+            	
+            } else if (operator.equalsIgnoreCase("LONGEST_LINESTRING")) {
+            	
+            	if(inGeometry instanceof LineString){
+            		outGeometry =  (Geometry) inGeometry.clone();
+            	
+            	} else if (inGeometry instanceof MultiLineString){
+            		LineString longestLineString =  (LineString) inGeometry.getGeometryN(0);
+            		for(int i = 0; i < inGeometry.getNumGeometries(); i++){
+
+            			LineString currentLineString = (LineString)inGeometry.getGeometryN(i);
+            			if(currentLineString.getLength() > longestLineString.getLength()){
+            				longestLineString = currentLineString;
+            			}
+
+            		}
+            		outGeometry = longestLineString;
+            		
+            	}
+            } else if (operator.equalsIgnoreCase("SHORTEST_LINESTRING")) {
+            	
+            	if(inGeometry instanceof LineString){
+            		outGeometry =  (Geometry) inGeometry.clone();
+            	
+            	} else if (inGeometry instanceof MultiLineString){
+            		LineString shortestLineString =  (LineString) inGeometry.getGeometryN(0);
+            		for(int i = 0; i < inGeometry.getNumGeometries(); i++){
+
+            			LineString currentLineString = (LineString)inGeometry.getGeometryN(i);
+            			if(currentLineString.getLength() < shortestLineString.getLength()){
+            				shortestLineString = currentLineString;
+            			}
+
+            		}
+            		outGeometry = shortestLineString;
+            		
+            	}
+
+            } else if (operator.equalsIgnoreCase("LINEAR_REFERENCING")) {
+            	
+            	if(inGeometry instanceof LineString){
+            		
+            		if (distance != null) {
+            			
+            			outGeometry =  geometryFactory.createPoint(
+            				new LengthIndexedLine((LineString) inGeometry)
+            					.extractPoint(distance)
+            			);
+            		
+            		}else{
+            			
+            			 throw new KettleException("Distance can not be null");
+            		}
+            		
+            	} 
+            	
             } else if (operator.equalsIgnoreCase("TO_2D_GEOMETRY")) {
 
                 outGeometry = GeometryUtils.get2DGeometry(inGeometry);
@@ -474,16 +637,26 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
 
                 outGeometry = geometryFactory.createMultiPoint(inGeometry.getCoordinates());
 
+            } else if (operator.equalsIgnoreCase("EXTRACT_FIRST_COORDINATE")) {
+
+                outGeometry = geometryFactory.createPoint(inGeometry.getCoordinates()[0]);    
+           
+            } else if (operator.equalsIgnoreCase("EXTRACT_LAST_COORDINATE")) {
+
+            	outGeometry = geometryFactory.createPoint(inGeometry.getCoordinates()[inGeometry.getCoordinates().length -1]);
+
             } else if (operator.equalsIgnoreCase("MBR")) {
 
                 outGeometry = inGeometry.getEnvelope();
 
+            } else if (operator.equalsIgnoreCase("MBC")) {
+
+                outGeometry = new MinimumBoundingCircle(inGeometry).getCircle();
+
             } else if (operator.equalsIgnoreCase("CENTROID")) {
 
                 outGeometry = inGeometry.getCentroid();
-
             }
-
         }
 
         return GeometryUtils.getNonEmptyGeometry(inGeometry.getSRID(), outGeometry);
@@ -527,8 +700,8 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
                         throw new KettleException("The first geometry is not a POLYGON or a MULTIPOLYGON");
                     }
 
-                    if (!(inGeometryA instanceof Polygonal)) {
-                        throw new KettleException("The first geometry is not a POLYGON or a MULTIPOLYGON");
+                    if (!(inGeometryB instanceof Polygonal)) {
+                        throw new KettleException("The second geometry is not a POLYGON or a MULTIPOLYGON");
                     }
 
                     if (distance != null) {
@@ -540,6 +713,79 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
                         throw new KettleException("Distance can not be null");
                     }
 
+                } else if (operator.equalsIgnoreCase("SPLIT")) {
+                	
+                	//Géométrie à découper ne doit pas être nulle
+                	if(!GeometryUtils.isNullOrEmptyGeometry(inGeometryA)){
+                		
+                		//Geometrie de découpe ne doit pas être nulle
+                		if(GeometryUtils.isNullOrEmptyGeometry(inGeometryB)){
+                		
+                			outGeometry = (Geometry) inGeometryA.clone();
+
+                		}else{
+	                			
+	                	    //Découpe de surface par un linéaire
+		                    if (inGeometryA instanceof Polygonal
+		                    		&& inGeometryB instanceof Lineal){
+		
+		                    	Polygonizer polygonizer = new Polygonizer();
+		                    	List<Geometry> boundaries = new ArrayList<Geometry>();
+		                    	boundaries.add(inGeometryA.getBoundary());
+		                    	boundaries.add(inGeometryB);
+		                    	UnaryUnionOp uOp = new UnaryUnionOp(geometryFactory.buildGeometry(boundaries));
+		                    	polygonizer.add(GeometryUtils.getMergedGeometry(uOp.union()));
+		                    	
+		                    	List<Polygon> realPolygons = new ArrayList<Polygon>();
+		                		for (Polygon polygon : GeometryFactory.toPolygonArray(polygonizer.getPolygons())) {
+		                            
+		                			if (inGeometryA.contains(polygon.getInteriorPoint())) {
+		                            	realPolygons.add(polygon);
+		                            }
+		                			
+		                        }
+		                        
+		                    	outGeometry = geometryFactory.buildGeometry(realPolygons);
+		                    
+		                    //Découpe de linéaire par un linéaire
+		                    }else if (inGeometryA instanceof Lineal
+		                    		&& inGeometryB instanceof Lineal
+		                    		&& !GeometryUtils.isNullOrEmptyGeometry(inGeometryA)
+		                    		&& !GeometryUtils.isNullOrEmptyGeometry(inGeometryB)){
+		
+		                    	outGeometry = inGeometryA.difference(inGeometryB);
+		       	
+		                    //Découpe de linéaire par un ponctuel
+		                    }else if (inGeometryA instanceof Lineal
+		                    		&& inGeometryB instanceof Puntal){
+
+		                    	List<LineString> linestrings = new ArrayList<LineString>();
+		                    	if(inGeometryA instanceof LineString){
+		                    		
+		                    		linestrings.addAll(Arrays.asList(splitLineStringAtCoordinates(inGeometryB.getCoordinates(), (LineString) inGeometryA, 10E-6)));
+		                    	
+		                    	}else{
+		                    		
+		                    		for(int i = 0; i < inGeometryA.getNumGeometries(); i++){
+		                    			linestrings.addAll(Arrays.asList(splitLineStringAtCoordinates(
+		                    				inGeometryB.getCoordinates(),
+		                    				(LineString) inGeometryA.getGeometryN(i),
+		                    				10E-6)
+		                    			));
+		                    		}
+		                    	}
+		                    	
+		                    	outGeometry = geometryFactory.buildGeometry(linestrings);
+		                    	
+		                    //Autres cas de découpe non pris en charge
+		                    }else{
+		                    	throw new KettleException("Split (MULTI)POLYGON by a (MULTI)LINESTRING, (MULTI)LINESTRING by (MULTI)LINESTRING or (MULTI)LINESTRING by (MULTI)POINT");
+		                    }
+	                    
+                		}
+                    
+                	}
+             
                 } else {
                     throw new IllegalArgumentException("Function \"" + operator + "\" is not allowed");
                 }
@@ -775,9 +1021,7 @@ public class GisGeoprocessing extends BaseStep implements StepInterface {
         for (Coordinate splitCoordinate : splitCoordinates) {
 
             if (geometryFactory.createPoint(splitCoordinate).distance(inputLineString) <= distance) {
-
                 indexesTree.add(lengthIndexedLine.project(splitCoordinate));
-
             }
         }
 

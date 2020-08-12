@@ -8,7 +8,7 @@ public class Layer {
     private String name;
     private List<Entity> entities;
 
-    protected Layer(String name) {
+    public Layer(String name) {
         this.name = name;
         this.entities = new ArrayList<Entity>();
     }

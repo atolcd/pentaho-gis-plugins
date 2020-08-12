@@ -39,7 +39,7 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.repository.ObjectId;
@@ -78,33 +78,79 @@ public class GisFileOutputMeta extends BaseStepMeta implements StepMetaInterface
 
         // ESRI Shapefile
         GisOutputFormatDef shpDef = new GisOutputFormatDef("ESRI_SHP", new String[] { "*.shp;*.SHP" }, new String[] { "*.shp" });
-        shpDef.addParameterFixedDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
-        shpDef.addParameterFixedDef("ESRI_SHP_CREATE_PRJ", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
+        shpDef.addParameterFixedDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
+        shpDef.addParameterFixedDef("ESRI_SHP_CREATE_PRJ", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
         this.outputFormatDefs.put("ESRI_SHP", shpDef);
 
         // GeoJSON
         GisOutputFormatDef geojsonDef = new GisOutputFormatDef("GEOJSON", new String[] { "*.geojson;*.GEOJSON", "*.json;*.JSON" }, new String[] { "*.geojson", "*.json" });
-        geojsonDef.addParameterFieldDef("GEOJSON_FEATURE_ID", ValueMeta.TYPE_STRING, false);
+        geojsonDef.addParameterFieldDef("GEOJSON_FEATURE_ID", ValueMetaBase.TYPE_STRING, false);
         this.outputFormatDefs.put("GEOJSON", geojsonDef);
 
         // Keyhole Markup LanguageKML
         GisOutputFormatDef kmlDef = new GisOutputFormatDef("KML", new String[] { "*.kml;*.KML" }, new String[] { "*.kml" });
-        kmlDef.addParameterFixedDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
-        kmlDef.addParameterFixedDef("KML_DOC_NAME", ValueMeta.TYPE_STRING, false);
-        kmlDef.addParameterFixedDef("KML_DOC_DESCRIPTION", ValueMeta.TYPE_STRING, false);
-        kmlDef.addParameterFixedDef("KML_EXPORT_ATTRIBUTS", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
-        kmlDef.addParameterFieldDef("KML_PLACEMARK_NAME", ValueMeta.TYPE_STRING, false);
-        kmlDef.addParameterFieldDef("KML_PLACEMARK_DESCRIPTION", ValueMeta.TYPE_STRING, false);
+        kmlDef.addParameterFixedDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
+        kmlDef.addParameterFixedDef("KML_DOC_NAME", ValueMetaBase.TYPE_STRING, false);
+        kmlDef.addParameterFixedDef("KML_DOC_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
+        kmlDef.addParameterFixedDef("KML_EXPORT_ATTRIBUTS", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        kmlDef.addParameterFieldDef("KML_PLACEMARK_NAME", ValueMetaBase.TYPE_STRING, false);
+        kmlDef.addParameterFieldDef("KML_PLACEMARK_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
         this.outputFormatDefs.put("KML", kmlDef);
 
         // DXF
         GisOutputFormatDef dxfDef = new GisOutputFormatDef("DXF", new String[] { "*.dxf;*.DXF" }, new String[] { "*.dxf" });
-        dxfDef.addParameterFixedDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
-        dxfDef.addParameterFixedDef("DXF_LAYER_NAME", ValueMeta.TYPE_STRING, true, null, "0");
-        dxfDef.addParameterFixedDef("DXF_COORD_PRECISION", ValueMeta.TYPE_INTEGER, true, null, "5");
-        dxfDef.addParameterFieldDef("DXF_FEATURE_LAYER_NAME", ValueMeta.TYPE_STRING, false);
+        dxfDef.addParameterFixedDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
+        dxfDef.addParameterFixedDef("DXF_LAYER_NAME", ValueMetaBase.TYPE_STRING, true, null, "0");
+        dxfDef.addParameterFixedDef("DXF_COORD_PRECISION", ValueMetaBase.TYPE_INTEGER, true, null, "5");
+        dxfDef.addParameterFieldDef("DXF_FEATURE_LAYER_NAME", ValueMetaBase.TYPE_STRING, false);
         this.outputFormatDefs.put("DXF", dxfDef);
 
+        // Gps exchange Format GPX
+        GisOutputFormatDef gpxDef = new GisOutputFormatDef("GPX", new String[] { "*.gpx;*.GPX" }, new String[] { "*.gpx" });
+        gpxDef.addParameterFixedDef("GPX_VERSION", ValueMetaBase.TYPE_STRING, true, Arrays.asList(new String[] { "1.0", "1.1" }), "1.1");
+        gpxDef.addParameterFixedDef("GPX_META_NAME", ValueMetaBase.TYPE_STRING, false);
+        gpxDef.addParameterFixedDef("GPX_META_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
+        gpxDef.addParameterFixedDef("GPX_META_AUTHOR_NAME", ValueMetaBase.TYPE_STRING, false);
+        gpxDef.addParameterFixedDef("GPX_META_AUTHOR_EMAIL", ValueMetaBase.TYPE_STRING, false);
+        gpxDef.addParameterFixedDef("GPX_META_KEYWORDS", ValueMetaBase.TYPE_STRING, false);
+        gpxDef.addParameterFixedDef("GPX_META_DATETIME", ValueMetaBase.TYPE_DATE, false);
+        gpxDef.addParameterFieldDef("GPX_FEATURE_NAME", ValueMetaBase.TYPE_STRING, false);
+        gpxDef.addParameterFieldDef("GPX_FEATURE_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
+        this.outputFormatDefs.put("GPX", gpxDef);
+         
+        // GeoPackage
+        GisOutputFormatDef gpkgDef = new GisOutputFormatDef("GEOPACKAGE", new String[] { "*.gpkg;*.GPKG"}, new String[] {"*.gpkg"});
+        gpkgDef.addParameterFixedDef("REPLACE_FILE", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] {"TRUE", "FALSE"}), "TRUE");
+        gpkgDef.addParameterFixedDef("DB_TABLE_NAME", ValueMetaBase.TYPE_STRING, true);
+        gpkgDef.addParameterFixedDef("DB_TABLE_COMMIT_LIMIT", ValueMetaBase.TYPE_INTEGER, true,null,"1000");
+        gpkgDef.addParameterFixedDef("REPLACE_TABLE", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] {"TRUE", "FALSE"}), "FALSE");
+        gpkgDef.addParameterFixedDef("GPKG_CONTENTS_IDENTIFIER", ValueMetaBase.TYPE_STRING, false);
+        gpkgDef.addParameterFixedDef("GPKG_CONTENTS_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
+        gpkgDef.addParameterFixedDef("GPKG_GEOMETRY_SRID", ValueMetaBase.TYPE_INTEGER, false);
+        gpkgDef.addParameterFixedDef("GPKG_GEOMETRY_GEOMETRYTYPE", ValueMetaBase.TYPE_STRING, false, Arrays.asList(new String[] {"POINT", "LINESTRING", "POLYGON","MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON","GEOMETRY"}), "GEOMETRY");
+        gpkgDef.addParameterFixedDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] {"TRUE", "FALSE"}), "TRUE");
+        gpkgDef.addParameterFieldDef("DB_TABLE_PK_FIELD", ValueMetaBase.TYPE_INTEGER, true);
+        this.outputFormatDefs.put("GEOPACKAGE", gpkgDef);
+        
+        // Scalable Vector Graphics SVG
+        GisOutputFormatDef svgDef = new GisOutputFormatDef("SVG", new String[] { "*.svg;*.SVG" }, new String[] { "*.svg" });
+        svgDef.addParameterFixedDef("SVG_DOC_WIDTH", ValueMetaBase.TYPE_INTEGER, true, null, "1000");
+        svgDef.addParameterFixedDef("SVG_DOC_HEIGHT", ValueMetaBase.TYPE_INTEGER, true,null, "1000");
+        svgDef.addParameterFixedDef("SVG_DOC_COORD_PRECISION", ValueMetaBase.TYPE_INTEGER, true, null, "5");
+        svgDef.addParameterFixedDef("SVG_DOC_TITLE", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFixedDef("SVG_DOC_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFixedDef("SVG_DOC_STYLESHEET", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFixedDef("SVG_DOC_STYLESHEET_MODE", ValueMetaBase.TYPE_STRING, false, Arrays.asList(new String[] {"RESSOURCE_EXTERNAL", "RESSOURCE_EMBEDDED"}), "RESSOURCE_EXTERNAL");
+        svgDef.addParameterFixedDef("SVG_DOC_SYMBOL_MODE", ValueMetaBase.TYPE_STRING, false, Arrays.asList(new String[] {"RESSOURCE_EXTERNAL", "RESSOURCE_EMBEDDED"}), "RESSOURCE_EXTERNAL");
+        svgDef.addParameterFieldDef("SVG_FEATURE_ID", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_TITLE", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_DESCRIPTION", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_STYLE", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_CLASS", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_SYMBOL", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_LABEL", ValueMetaBase.TYPE_STRING, false);
+        svgDef.addParameterFieldDef("SVG_FEATURE_GROUP", ValueMetaBase.TYPE_INTEGER, false);
+        this.outputFormatDefs.put("SVG", svgDef);
     }
 
     public HashMap<String, GisOutputFormatDef> getOutputFormatDefs() {
@@ -265,7 +311,7 @@ public class GisFileOutputMeta extends BaseStepMeta implements StepMetaInterface
 
     public int getParameterValueMetaType(String formatKey, String parameterType, String parameterKey) {
 
-        int valueMetaType = ValueMeta.TYPE_NONE;
+        int valueMetaType = ValueMetaBase.TYPE_NONE;
 
         if (parameterType.equalsIgnoreCase(GisOutputFormatParameterDef.TYPE_FIELD)) {
 

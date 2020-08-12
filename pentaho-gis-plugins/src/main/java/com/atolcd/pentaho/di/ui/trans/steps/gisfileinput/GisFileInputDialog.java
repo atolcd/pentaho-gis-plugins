@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.core.Const;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
@@ -191,20 +191,32 @@ public class GisFileInputDialog extends BaseStepDialog implements StepDialogInte
                 // Pas de nom de colonne géométrie pour spatialite : plusieurs
                 // géométries autorisées
                 if (wInputFormat.getText() != null && !wInputFormat.getText().isEmpty()
-                		&& (getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")
-                			|| getFormatKey(wInputFormat.getText()).equalsIgnoreCase("DXF")
-                				)) {
-                	
+                    && (
+                        getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")
+                        || getFormatKey(wInputFormat.getText()).equalsIgnoreCase("DXF")
+                        || getFormatKey(wInputFormat.getText()).equalsIgnoreCase("GPX")
+                        || getFormatKey(wInputFormat.getText()).equalsIgnoreCase("GEOPACKAGE")
+                    )
+                ) {
+                	//Si spatialite : Pas de nom de colonne géométrie car plusieurs géométries autorisées
                 	if(getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")){
                 		wGeometryField.setEnabled(false);
                 		wGeometryField.setText("");
-                		wlGeometryField.setEnabled(false);
-                	}
+                	} else {
+                        wGeometryField.setEnabled(true);
+                        wGeometryField.setText(BaseMessages.getString(PKG, "GisFileInput.GeometryFieldName.Default"));
+                        wlGeometryField.setEnabled(true);
+                    }
 
                 	wEncoding.setEnabled(false);
                 	wlEncoding.setEnabled(false);
                     
-                	if(getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")){
+                	//SPATIALITE / GEOPACKAGE / GPX
+                	if(getFormatKey(wInputFormat.getText()).equalsIgnoreCase("SPATIALITE")
+                        || getFormatKey(wInputFormat.getText()).equalsIgnoreCase("GEOPACKAGE")
+                        || getFormatKey(wInputFormat.getText()).equalsIgnoreCase("GPX")
+                    ){
+
                 		wEncoding.setText("UTF-8");
                 	}else{
                 		//DXF
@@ -216,10 +228,9 @@ public class GisFileInputDialog extends BaseStepDialog implements StepDialogInte
                     wGeometryField.setEnabled(true);
                     wGeometryField.setText(BaseMessages.getString(PKG, "GisFileInput.GeometryFieldName.Default"));
                     wlGeometryField.setEnabled(true);
-
                     wEncoding.setEnabled(true);
                     wlEncoding.setEnabled(true);
-
+                    wEncoding.setText("");
                 }
             }
         });
@@ -701,7 +712,7 @@ public class GisFileInputDialog extends BaseStepDialog implements StepDialogInte
 
                 // Paramétrage de la boîte de dialogue (commun)
                 String dialogTitle = BaseMessages.getString(PKG, "GisFileInput.Params.Dialog.PARAM_VALUE.Title");
-                String dialogParamComment = BaseMessages.getString(PKG, "GisFileInput.Params." + paramKey + ".Description") + " (" + ValueMeta.getTypeDesc(paramValueMetaType)
+                String dialogParamComment = BaseMessages.getString(PKG, "GisFileInput.Params." + paramKey + ".Description") + " (" + ValueMetaBase.getTypeDesc(paramValueMetaType)
                         + ")";
 
                 if (values.isEmpty()) {

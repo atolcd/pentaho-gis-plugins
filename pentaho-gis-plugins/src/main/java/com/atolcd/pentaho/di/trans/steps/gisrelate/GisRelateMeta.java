@@ -35,7 +35,7 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -179,7 +179,7 @@ public class GisRelateMeta extends BaseStepMeta implements StepMetaInterface {
     public void getFields(RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep, VariableSpace space) {
 
         if (ArrayUtils.contains(numericResultOperators, operator)) {
-            ValueMetaInterface valueMeta = new ValueMeta(outputFieldName, ValueMeta.TYPE_NUMBER);
+            ValueMetaInterface valueMeta = new ValueMetaBase(outputFieldName, ValueMetaBase.TYPE_NUMBER);
             valueMeta.setOrigin(origin);
             r.addValueMeta(valueMeta);
         }
@@ -187,7 +187,7 @@ public class GisRelateMeta extends BaseStepMeta implements StepMetaInterface {
         if (ArrayUtils.contains(boolResultOperators, operator)) {
 
             if (returnType.equalsIgnoreCase("ALL")) {
-                ValueMetaInterface valueMeta = new ValueMeta(outputFieldName, ValueMeta.TYPE_BOOLEAN);
+                ValueMetaInterface valueMeta = new ValueMetaBase(outputFieldName, ValueMetaBase.TYPE_BOOLEAN);
                 valueMeta.setOrigin(origin);
                 r.addValueMeta(valueMeta);
             }

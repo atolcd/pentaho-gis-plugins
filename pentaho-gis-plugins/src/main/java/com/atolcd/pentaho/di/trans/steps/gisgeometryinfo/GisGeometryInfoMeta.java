@@ -38,7 +38,7 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -70,20 +70,20 @@ public class GisGeometryInfoMeta extends BaseStepMeta implements StepMetaInterfa
         this.infosTypes = new HashMap<String, Integer>();
         this.outputFields = new LinkedHashMap<String, String>();
 
-        this.infosTypes.put("NULL_OR_EMPTY", ValueMeta.TYPE_BOOLEAN);
-        this.infosTypes.put("AREA", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("LENGTH", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("DIMENSION", ValueMeta.TYPE_INTEGER);
-        this.infosTypes.put("SRID", ValueMeta.TYPE_INTEGER);
-        this.infosTypes.put("GEOMETRY_TYPE", ValueMeta.TYPE_STRING);
-        this.infosTypes.put("GEOMETRY_COUNT", ValueMeta.TYPE_INTEGER);
-        this.infosTypes.put("GEOMETRY_VERTEX_COUNT", ValueMeta.TYPE_INTEGER);
-        this.infosTypes.put("X_MIN", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("Y_MIN", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("Z_MIN", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("X_MAX", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("Y_MAX", ValueMeta.TYPE_NUMBER);
-        this.infosTypes.put("Z_MAX", ValueMeta.TYPE_NUMBER);
+        this.infosTypes.put("NULL_OR_EMPTY", ValueMetaBase.TYPE_BOOLEAN);
+        this.infosTypes.put("AREA", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("LENGTH", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("DIMENSION", ValueMetaBase.TYPE_INTEGER);
+        this.infosTypes.put("SRID", ValueMetaBase.TYPE_INTEGER);
+        this.infosTypes.put("GEOMETRY_TYPE", ValueMetaBase.TYPE_STRING);
+        this.infosTypes.put("GEOMETRY_COUNT", ValueMetaBase.TYPE_INTEGER);
+        this.infosTypes.put("GEOMETRY_VERTEX_COUNT", ValueMetaBase.TYPE_INTEGER);
+        this.infosTypes.put("X_MIN", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("Y_MIN", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("Z_MIN", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("X_MAX", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("Y_MAX", ValueMetaBase.TYPE_NUMBER);
+        this.infosTypes.put("Z_MAX", ValueMetaBase.TYPE_NUMBER);
 
     }
 
@@ -148,7 +148,7 @@ public class GisGeometryInfoMeta extends BaseStepMeta implements StepMetaInterfa
             if (valueMetaType == ValueMetaGeometry.TYPE_GEOMETRY) {
                 valueMeta = new ValueMetaGeometry(fieldName);
             } else {
-                valueMeta = new ValueMeta(fieldName, valueMetaType);
+                valueMeta = new ValueMetaBase(fieldName, valueMetaType);
             }
 
             valueMeta.setOrigin(origin);

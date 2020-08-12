@@ -1,5 +1,6 @@
 package com.atolcd.gis.dxf;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,10 +10,14 @@ import org.kabeja.dxf.DXFCircle;
 import org.kabeja.dxf.DXFConstants;
 import org.kabeja.dxf.DXFDocument;
 import org.kabeja.dxf.DXFEllipse;
+import org.kabeja.dxf.DXFEntity;
+import org.kabeja.dxf.DXFExtendedData;
+import org.kabeja.dxf.DXFInsert;
 import org.kabeja.dxf.DXFLWPolyline;
 import org.kabeja.dxf.DXFLayer;
 import org.kabeja.dxf.DXFLine;
 import org.kabeja.dxf.DXFMText;
+import org.kabeja.dxf.DXFPoint;
 import org.kabeja.dxf.DXFPolyline;
 import org.kabeja.dxf.DXFSpline;
 import org.kabeja.dxf.DXFText;
@@ -38,6 +43,7 @@ public class DXFReader {
     private static GeometryFactory geometryFactory = new GeometryFactory();
 
     private String dxfFileName;
+    private boolean dxfFileExist;
     private List<Layer> layers;
 
     private boolean circleAsPolygon;
@@ -48,7 +54,19 @@ public class DXFReader {
         this.circleAsPolygon = false;
         this.ellipseAsPolygon = false;
         this.polylineAsPolygon = false;
-        this.dxfFileName = fileName;
+        
+        int pointIndex = fileName.lastIndexOf('.');
+	    if (pointIndex > 0) {
+	    	fileName =  fileName.substring(0,pointIndex);
+	    }
+	    
+	    this.dxfFileName = fileName.concat(".dxf");
+		this.dxfFileExist = new File(this.dxfFileName).exists();
+		
+		if(!this.dxfFileExist){
+			 throw new Exception("Missing " + this.dxfFileName + " file");
+		}
+
         this.layers = new ArrayList<Layer>();
     }
 
@@ -73,6 +91,8 @@ public class DXFReader {
             entities.addAll(getCircles(dxfLayer));
             entities.addAll(getEllipses(dxfLayer));
             entities.addAll(getArcs(dxfLayer));
+            entities.addAll(getBlocks(dxfLayer));
+			entities.addAll(getPoints(dxfLayer));
 
             layer.setEntities(entities);
 
@@ -105,269 +125,478 @@ public class DXFReader {
         this.polylineAsPolygon = polylineAsPolygon;
     }
 
-    private List<Entity> getMTexts(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFMText> dxfMTexts = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_MTEXT);
+    private Entity addExtendedData(Entity entity, DXFEntity dxfEntity){
 
-        if (dxfMTexts != null) {
-            for (DXFMText dxfMText : dxfMTexts) {
-                Entity entity = new Entity();
-
-                Point dxfInsertPoint = dxfMText.getInsertPoint();
-
-                entity.setType(Entity.TYPE_MTEXT);
-                entity.setGeometry(geometryFactory.createPoint(new Coordinate(dxfInsertPoint.getX(), dxfInsertPoint.getY())));
-                entity.setText(dxfMText.getText());
-
-                entities.add(entity);
-            }
-        }
-        return entities;
+		for(DXFExtendedData dxfExtendedData : dxfEntity.getExtendedData()) {
+			
+			entity.AddExtendedData(dxfExtendedData.getName(),dxfExtendedData.getType(), dxfExtendedData.getValue());
+		}
+		
+		return entity;
     }
+    
+    private List<Entity> getPoints(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFPoint> dxfPoints = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_POINT);
+		
+		if(dxfPoints != null){
+			
+			for(DXFPoint dxfPoint : dxfPoints){
 
-    private List<Entity> getTexts(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFText> dxfMTexts = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_TEXT);
-
-        if (dxfMTexts != null) {
-            for (DXFText dxfText : dxfMTexts) {
-                Entity entity = new Entity();
-
-                Point dxfInsertPoint = dxfText.getInsertPoint();
-
-                entity.setType(Entity.TYPE_TEXT);
-                entity.setGeometry(geometryFactory.createPoint(new Coordinate(dxfInsertPoint.getX(), dxfInsertPoint.getY())));
-                entity.setText(dxfText.getText());
-                entities.add(entity);
-            }
-        }
-        return entities;
+				Point dxfInsertPoint = dxfPoint.getPoint();
+				
+				Entity entity = new Entity(
+						dxfPoint.getID(),
+						geometryFactory.createPoint(
+								new Coordinate(
+									dxfInsertPoint.getX(),
+									dxfInsertPoint.getY(),
+									dxfInsertPoint.getZ()
+								)
+							),
+						Entity.TYPE_POINT,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfPoint));
+			
+			}
+		}
+		
+		return entities;
+		
     }
+    
+    private List<Entity> getBlocks(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFInsert> dxfInserts = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_INSERT);
+		
+		if(dxfInserts != null){
+			
+			for(DXFInsert dxfInsert : dxfInserts){
 
-    private List<Entity> getLines(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFLine> dxfLines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LINE);
+				Point dxfInsertPoint = dxfInsert.getPoint();
+				
+				Entity entity = new Entity(
+						dxfInsert.getID(),
+						geometryFactory.createPoint(
+								new Coordinate(
+									dxfInsertPoint.getX(),
+									dxfInsertPoint.getY(),
+									dxfInsertPoint.getZ()
+								)
+							),
+						Entity.TYPE_BLOCK,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfInsert));
+			
+			}
+		}
+		
+		return entities;
+		
+	}
 
-        if (dxfLines != null) {
-            for (DXFLine dxfLine : dxfLines) {
-                Entity entity = new Entity();
+    private List<Entity> getMTexts(DXFLayer layer){
+				
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFMText> dxfMTexts = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_MTEXT);
+		
+		if(dxfMTexts != null){
+			
+			for(DXFMText dxfMText : dxfMTexts){
 
-                Point start = dxfLine.getStartPoint();
-                Point end = dxfLine.getEndPoint();
+				Point dxfInsertPoint = dxfMText.getInsertPoint();
 
-                entity.setType(Entity.TYPE_LINE);
-                entity.setGeometry(geometryFactory.createLineString(new Coordinate[] { new Coordinate(start.getX(), start.getY()), new Coordinate(end.getX(), end.getY()) }));
+				Entity entity = new Entity(
+						dxfMText.getID(),
+						geometryFactory.createPoint(
+								new Coordinate(
+										dxfInsertPoint.getX(),
+										dxfInsertPoint.getY(),
+										dxfInsertPoint.getZ()
+									)
+							),
+						Entity.TYPE_MTEXT,
+						dxfMText.getText()
+				);
+				
+				entities.add(addExtendedData(entity,dxfMText));
+			
+			}
+		}
+		
+		return entities;
+		
+	}
 
-                entities.add(entity);
-            }
-        }
-        return entities;
-    }
+    private List<Entity> getTexts(DXFLayer layer){
 
-    private List<Entity> getPolylines(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFPolyline> dxfpolylines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_POLYLINE);
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFText> dxfTexts = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_TEXT);
+		
+		if(dxfTexts != null){
+			
+			for(DXFText dxfText : dxfTexts){
+				
+				Point dxfInsertPoint = dxfText.getInsertPoint();
+				
+				Entity entity = new Entity(
+						dxfText.getID(),
+						geometryFactory.createPoint(
+								new Coordinate(
+										dxfInsertPoint.getX(),
+										dxfInsertPoint.getY(),
+										dxfInsertPoint.getZ()
+									)
+							),
+						Entity.TYPE_TEXT,
+						dxfText.getText()
+				);
+				
+				entities.add(addExtendedData(entity,dxfText));
+			
+			}
+		}
+		
+		return entities;
+		
+	}
 
-        if (dxfpolylines != null) {
-            for (DXFPolyline dxfPolyline : dxfpolylines) {
-                Entity entity = new Entity();
+    private List<Entity> getLines(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFLine> dxfLines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LINE);
+		
+		if(dxfLines != null){
+			
+			for(DXFLine dxfLine : dxfLines){
+				
+		
+				Point start = dxfLine.getStartPoint();
+				Point end = dxfLine.getEndPoint();
+				
+				Entity entity = new Entity(
+						dxfLine.getID(),
+						geometryFactory.createLineString(
+							new Coordinate[]{
+								new Coordinate(start.getX(),start.getY(),start.getZ()),
+								new Coordinate(end.getX(),end.getY(),end.getZ())
+							}
+						),
+						Entity.TYPE_LINE,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfLine));
+			}
+		}
+		
+		return entities;
+		
+	}
 
-                CoordinateList coordinates = new CoordinateList();
-                @SuppressWarnings("unchecked")
-                Iterator<DXFVertex> vertexIt = dxfPolyline.getVertexIterator();
+    private List<Entity> getPolylines(DXFLayer layer){
 
-                while (vertexIt.hasNext()) {
-                    DXFVertex vertex = vertexIt.next();
-                    if (!vertex.is2DSplineApproximationVertex() && !vertex.is2DSplineControlVertex() && !vertex.isCurveFitVertex()) {
-                        coordinates.add(new Coordinate(vertex.getX(), vertex.getY()), false);
-                    }
-                }
-                if (dxfPolyline.isClosed()) {
-                    coordinates.add(coordinates.get(0), false);
-                }
-                Geometry geometry = geometryFactory.createLineString(coordinates.toCoordinateArray());
-                if (((LineString) geometry).isClosed() && this.polylineAsPolygon) {
-                    geometry = geometryFactory.createPolygon(geometry.getCoordinates());
-                }
-                entity.setType(Entity.TYPE_POLYLINE);
-                entity.setGeometry(geometry);
-                entities.add(entity);
-            }
-        }
-        return entities;
-    }
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFPolyline> dxfpolylines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_POLYLINE);
+		
+		if(dxfpolylines != null){
 
-    private List<Entity> getLWPolylines(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFLWPolyline> dxfLwPolylines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LWPOLYLINE);
+			for(DXFPolyline dxfPolyline : dxfpolylines){
 
-        if (dxfLwPolylines != null) {
-            for (DXFPolyline dxfLwPolyline : dxfLwPolylines) {
-                Entity entity = new Entity();
+				CoordinateList coordinates = new CoordinateList();
+				@SuppressWarnings("unchecked")
+				Iterator<DXFVertex> vertexIt = dxfPolyline.getVertexIterator();
+				
+				while(vertexIt.hasNext()){
+					
+					DXFVertex vertex = vertexIt.next();
+					
+					if(!vertex.is2DSplineApproximationVertex()
+							&& !vertex.is2DSplineControlVertex()
+							&& !vertex.isCurveFitVertex()){
+						
+						coordinates.add(new Coordinate(vertex.getX(),vertex.getY(),vertex.getZ()),false);
 
-                CoordinateList coordinates = new CoordinateList();
-                @SuppressWarnings("unchecked")
-                Iterator<DXFVertex> vertexIt = dxfLwPolyline.getVertexIterator();
+					}
+					
+				}
 
-                while (vertexIt.hasNext()) {
-                    DXFVertex vertex = vertexIt.next();
-                    if (!vertex.is2DSplineApproximationVertex() && !vertex.is2DSplineControlVertex() && !vertex.isCurveFitVertex()) {
-                        coordinates.add(new Coordinate(vertex.getX(), vertex.getY()), false);
-                    }
-                }
-                if (dxfLwPolyline.isClosed()) {
-                    coordinates.add(coordinates.get(0), false);
-                }
-                Geometry geometry = geometryFactory.createLineString(coordinates.toCoordinateArray());
-                if (((LineString) geometry).isClosed() && this.polylineAsPolygon) {
-                    geometry = geometryFactory.createPolygon(geometry.getCoordinates());
-                }
-                entity.setType(Entity.TYPE_LWPOLYLINE);
-                entity.setGeometry(geometry);
-                entities.add(entity);
-            }
-        }
-        return entities;
-    }
+				if(dxfPolyline.isClosed()){
+					coordinates.add(coordinates.get(0),false);
+				}
+				
+				Geometry geometry = geometryFactory.createLineString(coordinates.toCoordinateArray());
+				if(((LineString)geometry).isClosed() && geometry.getCoordinates().length >= 4 && this.polylineAsPolygon){
+					geometry = geometryFactory.createPolygon(geometry.getCoordinates());
+				}
 
-    private List<Entity> getSplines(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFSpline> dxfSplines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_SPLINE);
+				Entity entity = new Entity(
+						dxfPolyline.getID(),
+						geometry,
+						Entity.TYPE_POLYLINE,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfPolyline));
 
-        if (dxfSplines != null) {
-            for (DXFSpline dxfSpline : dxfSplines) {
-                DXFPolyline dxfPolyline = DXFSplineConverter.toDXFPolyline(dxfSpline);
+			}
+		}
+		
+		return entities;
+		
+	}
 
-                Entity entity = new Entity();
+    private List<Entity> getLWPolylines(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFLWPolyline> dxfLwPolylines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LWPOLYLINE);
+		
+		if(dxfLwPolylines != null){
 
-                CoordinateList coordinates = new CoordinateList();
-                @SuppressWarnings("unchecked")
-                Iterator<DXFVertex> vertexIt = dxfPolyline.getVertexIterator();
+			for(DXFPolyline dxfLwPolyline : dxfLwPolylines){
+		
+				CoordinateList coordinates = new CoordinateList();
+				@SuppressWarnings("unchecked")
+				Iterator<DXFVertex> vertexIt = dxfLwPolyline.getVertexIterator();
+				
+				while(vertexIt.hasNext()){
+					
+					DXFVertex vertex = vertexIt.next();
 
-                while (vertexIt.hasNext()) {
-                    DXFVertex vertex = vertexIt.next();
-                    if (!vertex.is2DSplineApproximationVertex() && !vertex.is2DSplineControlVertex() && !vertex.isCurveFitVertex()) {
-                        coordinates.add(new Coordinate(vertex.getX(), vertex.getY()), false);
-                    }
-                }
-                if (dxfPolyline.isClosed()) {
-                    coordinates.add(coordinates.get(0), false);
-                }
-                Geometry geometry = geometryFactory.createLineString(coordinates.toCoordinateArray());
-                if (((LineString) geometry).isClosed() && this.polylineAsPolygon) {
-                    geometry = geometryFactory.createPolygon(geometry.getCoordinates());
-                }
-                entity.setType(Entity.TYPE_LWPOLYLINE);
-                entity.setGeometry(geometry);
-                entities.add(entity);
-            }
-        }
-        return entities;
-    }
+					if(!vertex.is2DSplineApproximationVertex()
+							&& !vertex.is2DSplineControlVertex()
+							&& !vertex.isCurveFitVertex()){
+						
+						coordinates.add(new Coordinate(vertex.getX(),vertex.getY(), vertex.getZ()),false);
 
-    private List<Entity> getCircles(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFCircle> dxfCircles = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
+					}
+					
+				}
 
-        if (dxfCircles != null) {
-            for (DXFCircle dxfCircle : dxfCircles) {
-                Entity entity = new Entity();
+				if(dxfLwPolyline.isClosed()){
+					coordinates.add(coordinates.get(0),false);
+				}
+				
+				Geometry geometry = geometryFactory.createLineString(coordinates.toCoordinateArray());
+				if(((LineString)geometry).isClosed() && geometry.getCoordinates().length >= 4 && this.polylineAsPolygon){
+					geometry = geometryFactory.createPolygon(geometry.getCoordinates());
+				}
+				
+				Entity entity = new Entity(
+						dxfLwPolyline.getID(),
+						geometry,
+						Entity.TYPE_LWPOLYLINE,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfLwPolyline));
 
-                Point dxfCenter = dxfCircle.getCenterPoint();
+			}
+		}
+		
+		return entities;
 
-                GeometricShapeFactory geometricShapeFactory = new GeometricShapeFactory();
-                geometricShapeFactory.setCentre(new Coordinate(dxfCenter.getX(), dxfCenter.getY()));
-                geometricShapeFactory.setWidth(dxfCircle.getRadius() * 2);
-                geometricShapeFactory.setHeight(dxfCircle.getRadius() * 2);
+	}
+	
+	private List<Entity> getSplines(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFSpline> dxfSplines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_SPLINE);
+				
+		if(dxfSplines != null){
 
-                Geometry geometry = geometricShapeFactory.createCircle();
-                if (!this.circleAsPolygon) {
-                    geometry = geometryFactory.createLineString(((Polygon) geometry).getExteriorRing().getCoordinates());
-                }
+			for(DXFSpline dxfSpline : dxfSplines){
 
-                entity.setType(Entity.TYPE_CIRCLE);
-                entity.setGeometry(geometry);
-                entities.add(entity);
-            }
-        }
-        return entities;
+				DXFPolyline dxfPolyline = DXFSplineConverter.toDXFPolyline(dxfSpline);
 
-    }
+				CoordinateList coordinates = new CoordinateList();
+				@SuppressWarnings("unchecked")
+				Iterator<DXFVertex> vertexIt = dxfPolyline.getVertexIterator();
+				
+				while(vertexIt.hasNext()){
+					
+					DXFVertex vertex = vertexIt.next();
+					
+					if(!vertex.is2DSplineApproximationVertex()
+							&& !vertex.is2DSplineControlVertex()
+							&& !vertex.isCurveFitVertex()){
+						
+						coordinates.add(new Coordinate(vertex.getX(),vertex.getY(),vertex.getZ()),false);
 
-    private List<Entity> getEllipses(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFEllipse> dxfEllipses = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_ELLIPSE);
+					}
+					
+				}
 
-        if (dxfEllipses != null) {
-            for (DXFEllipse dxfEllipse : dxfEllipses) {
-                Entity entity = new Entity();
+				if(dxfPolyline.isClosed()){
+					coordinates.add(coordinates.get(0),false);
+				}
+				
+				Geometry geometry = geometryFactory.createLineString(coordinates.toCoordinateArray());
+				if(((LineString)geometry).isClosed() && geometry.getCoordinates().length >= 4 && this.polylineAsPolygon){
+					geometry = geometryFactory.createPolygon(geometry.getCoordinates());
+				}
 
-                Point dxfCenter = dxfEllipse.getCenterPoint();
-                // Bounds dxfBounds = dxfEllipse.getBounds();
-                // Envelope dxfEnv = new Envelope(dxfBounds.getMinimumX(),
-                // dxfBounds.getMaximumX(), dxfBounds.getMinimumY(),
-                // dxfBounds.getMaximumY());
+				Entity entity = new Entity(
+						dxfSpline.getID(),
+						geometry,
+						Entity.TYPE_LWPOLYLINE,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfSpline));
 
-                double width = dxfEllipse.getHalfMajorAxisLength() * 2;
-                double height = width * dxfEllipse.getRatio();
-                GeometricShapeFactory geometricShapeFactory = new GeometricShapeFactory();
-                geometricShapeFactory.setCentre(new Coordinate(dxfCenter.getX(), dxfCenter.getY()));
-                geometricShapeFactory.setWidth(width);
-                geometricShapeFactory.setHeight(height);
-                geometricShapeFactory.setRotation(dxfEllipse.getRotationAngle());
+			}
+		}
+		
+		return entities;
 
-                Geometry geometry = geometricShapeFactory.createEllipse();
-                if (!this.ellipseAsPolygon) {
-                    geometry = geometryFactory.createLineString(((Polygon) geometry).getExteriorRing().getCoordinates());
-                }
+	}
+	
+	private List<Entity> getCircles(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFCircle> dxfCircles = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
+		
+		if(dxfCircles != null){
+			
+			for(DXFCircle dxfCircle : dxfCircles){
 
-                entity.setType(Entity.TYPE_ELLIPSE);
-                entity.setGeometry(geometry);
+				
+				Point dxfCenter = dxfCircle.getCenterPoint();
 
-                entities.add(entity);
-            }
-        }
-        return entities;
-    }
+				GeometricShapeFactory geometricShapeFactory = new GeometricShapeFactory();
+				geometricShapeFactory.setCentre(new Coordinate(dxfCenter.getX(),dxfCenter.getY()));
+				geometricShapeFactory.setWidth(dxfCircle.getRadius()*2);
+				geometricShapeFactory.setHeight(dxfCircle.getRadius()*2);
+			
+				Geometry geometry = geometricShapeFactory.createCircle();
+				geometry = geometryFactory.createPolygon(setZ(geometry.getCoordinates(),dxfCenter.getZ()));
+				
+				if(!this.circleAsPolygon){
+					geometry = geometryFactory.createLineString(((Polygon)geometry).getExteriorRing().getCoordinates());
+				}
+				
+				Entity entity = new Entity(
+						dxfCircle.getID(),
+						geometry,
+						Entity.TYPE_CIRCLE,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfCircle));
+			
+			}
+		}
+		
+		return entities;
+		
+	}
+	
+	private List<Entity> getEllipses(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFEllipse> dxfEllipses = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_ELLIPSE);
+		
+		if(dxfEllipses != null){
+			
+			for(DXFEllipse dxfEllipse : dxfEllipses){
 
-    private List<Entity> getArcs(DXFLayer layer) {
-        List<Entity> entities = new ArrayList<Entity>();
-        @SuppressWarnings("unchecked")
-        List<DXFArc> dxfArcs = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_ARC);
+				Point dxfCenter = dxfEllipse.getCenterPoint();
+				double width = dxfEllipse.getHalfMajorAxisLength() * 2;
+				double height = width * dxfEllipse.getRatio();
+				GeometricShapeFactory geometricShapeFactory = new GeometricShapeFactory();
+				geometricShapeFactory.setCentre(new Coordinate(dxfCenter.getX(),dxfCenter.getY()));
+				geometricShapeFactory.setWidth(width);
+				geometricShapeFactory.setHeight(height);
+				geometricShapeFactory.setRotation(dxfEllipse.getRotationAngle());
 
-        if (dxfArcs != null) {
-            for (DXFArc dxfArc : dxfArcs) {
-                Entity entity = new Entity();
+				Geometry geometry = geometricShapeFactory.createEllipse();
+				geometry = geometryFactory.createPolygon(setZ(geometry.getCoordinates(),dxfCenter.getZ()));
+				
+				if(!this.ellipseAsPolygon){
+					geometry = geometryFactory.createLineString(((Polygon)geometry).getExteriorRing().getCoordinates());
+				}
+				
+				Entity entity = new Entity(
+						dxfEllipse.getID(),
+						geometry,
+						Entity.TYPE_ELLIPSE,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfEllipse));
+			
+			}
+		}
+		
+		return entities;
+		
+	}
+	
+	private List<Entity> getArcs(DXFLayer layer){
+		
+		List<Entity> entities = new ArrayList<Entity>();
+		@SuppressWarnings("unchecked")
+		List<DXFArc> dxfArcs = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_ARC);
+		
+		if(dxfArcs != null){
+			
+			for(DXFArc dxfArc : dxfArcs){
 
-                Point dxfCenter = dxfArc.getCenterPoint();
-                double dxfStarAngle = dxfArc.getStartAngle();
-                double dxfTotalAngle = dxfArc.getTotalAngle();
+				Point dxfCenter = dxfArc.getCenterPoint();
+				double dxfStarAngle = dxfArc.getStartAngle();
+				double dxfTotalAngle = dxfArc.getTotalAngle();
 
-                Coordinate center = new Coordinate(dxfCenter.getX(), dxfCenter.getY());
+				Coordinate center = new Coordinate(dxfCenter.getX(),dxfCenter.getY());
+				
+				double startAngle = Angle.toRadians(dxfStarAngle);
+				double totalAngle = Angle.toRadians(dxfTotalAngle);
 
-                double startAngle = Angle.toRadians(dxfStarAngle);
-                double totalAngle = Angle.toRadians(dxfTotalAngle);
-
-                GeometricShapeFactory geometricShapeFactory = new GeometricShapeFactory();
-                geometricShapeFactory.setCentre(center);
-                geometricShapeFactory.setWidth(dxfArc.getRadius() * 2);
-                geometricShapeFactory.setHeight(dxfArc.getRadius() * 2);
-                Geometry geometry = geometricShapeFactory.createArc(startAngle, totalAngle);
-
-                entity.setType(Entity.TYPE_ARC);
-                entity.setGeometry(geometry);
-
-                entities.add(entity);
-            }
-        }
-        return entities;
-    }
+				GeometricShapeFactory geometricShapeFactory = new GeometricShapeFactory();
+				geometricShapeFactory.setCentre(center);
+				geometricShapeFactory.setWidth(dxfArc.getRadius()*2);
+				geometricShapeFactory.setHeight(dxfArc.getRadius()*2);
+				Geometry geometry = geometricShapeFactory.createArc(startAngle, totalAngle);
+				geometry = geometryFactory.createLineString(setZ(geometry.getCoordinates(),dxfCenter.getZ()));
+				
+				Entity entity = new Entity(
+						dxfArc.getID(),
+						geometry,
+						Entity.TYPE_ARC,
+						null
+				);
+				
+				entities.add(addExtendedData(entity,dxfArc));
+			
+			}
+		}
+		
+		return entities;
+		
+	}
+	
+	private Coordinate[] setZ(Coordinate[] coordinates, double zValue){
+		
+		for(Coordinate coordinate : coordinates){
+			coordinate.z = zValue;
+		}
+		
+		return coordinates;
+	}
 }

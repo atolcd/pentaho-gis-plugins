@@ -59,11 +59,13 @@ public class GisGeoprocessingMeta extends BaseStepMeta implements StepMetaInterf
 
     // Pour opérateurs avec une seule géométrie
     private static String[] oneGeometryOperators = new String[] { "BOUNDARY", "INTERIOR_POINT", "CONVEX_HULL", "CONCAVE_HULL", "BUFFER", "EXTENDED_BUFFER", "EXPLODE", "REVERSE",
-            "DENSIFY", "SIMPLIFY", "TO_2D_GEOMETRY", "TO_MULTI_GEOMETRY", "EXTRACT_COORDINATES", "MBR", "CENTROID" };
+        "DENSIFY", "SIMPLIFY", "SIMPLIFY_VW", "TO_2D_GEOMETRY", "TO_MULTI_GEOMETRY", "EXTRACT_COORDINATES","EXTRACT_FIRST_COORDINATE","EXTRACT_LAST_COORDINATE", "MBR", "MBC", "CENTROID", "LESS_PRECISION", "POLYGONIZE",
+        "LINEMERGE", "REMOVE_HOLES", "LARGEST_POLYGON", "SMALLEST_POLYGON","LONGEST_LINESTRING", "SHORTEST_LINESTRING", "LINEAR_REFERENCING" };
     private String firstGeometryFieldName;
 
     // Pour opérateurs avec deux géométries
-    private static String[] twoGeometriesOperators = new String[] { "UNION", "DIFFERENCE", "INTERSECTION", "SYM_DIFFERENCE", "SNAP_TO_GEOMETRY", "SIMPLIFY_POLYGON" };
+    private static String[] twoGeometriesOperators = new String[] { "UNION", "DIFFERENCE", "INTERSECTION", "SYM_DIFFERENCE", "SNAP_TO_GEOMETRY",
+        "SIMPLIFY_POLYGON", "SPLIT" };
     private String secondGeometryFieldName;
 
     // Pour opérateurs avec possibilités de filtrage de géométries hétérogènes
@@ -76,8 +78,8 @@ public class GisGeoprocessingMeta extends BaseStepMeta implements StepMetaInterf
     private String returnType;
 
     // Pour opérateurs avec besoin de distance
-    private static String[] withDistanceOperators = new String[] { "CONCAVE_HULL", "BUFFER", "EXTENDED_BUFFER", "DENSIFY", "SIMPLIFY", ",CONCAVE_HULL", "SNAP_TO_GEOMETRY",
-            "SIMPLIFY_POLYGON" };
+    private static String[] withDistanceOperators = new String[] { "CONCAVE_HULL", "BUFFER", "EXTENDED_BUFFER",
+        "DENSIFY", "SIMPLIFY", "SIMPLIFY_VW", "CONCAVE_HULL", "SNAP_TO_GEOMETRY", "SIMPLIFY_POLYGON", "LESS_PRECISION","REMOVE_HOLES", "LINEAR_REFERENCING" };
     private boolean dynamicDistance;
     private String distanceFieldName;
     private String distanceValue;

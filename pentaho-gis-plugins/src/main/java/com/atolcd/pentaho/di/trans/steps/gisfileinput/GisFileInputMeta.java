@@ -40,7 +40,7 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.repository.ObjectId;
@@ -57,7 +57,9 @@ import org.w3c.dom.Node;
 
 import com.atolcd.pentaho.di.gis.io.AbstractFileReader;
 import com.atolcd.pentaho.di.gis.io.DXFReader;
+import com.atolcd.pentaho.di.gis.io.GPXReader;
 import com.atolcd.pentaho.di.gis.io.GeoJSONReader;
+import com.atolcd.pentaho.di.gis.io.GeoPackageReader;
 import com.atolcd.pentaho.di.gis.io.MapInfoReader;
 import com.atolcd.pentaho.di.gis.io.ShapefileReader;
 import com.atolcd.pentaho.di.gis.io.SpatialiteReader;
@@ -84,32 +86,45 @@ public class GisFileInputMeta extends BaseStepMeta implements StepMetaInterface 
 
         // ESRI Shapefile
         GisInputFormatDef shpDef = new GisInputFormatDef("ESRI_SHP", new String[] { "*.shp;*.SHP" }, new String[] { "*.shp" });
-        shpDef.addParameterDef("FORCE_TO_2D", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
-        shpDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        shpDef.addParameterDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "TRUE");
+        shpDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("ESRI_SHP", shpDef);
 
         // GeoJSON
         GisInputFormatDef geojsonDef = new GisInputFormatDef("GEOJSON", new String[] { "*.geojson;*.GEOJSON", "*.json;*.JSON" }, new String[] { "*.geojson", "*.json" });
-        geojsonDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        geojsonDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("GEOJSON", geojsonDef);
 
         // Mapinfo MIF/MID
         GisInputFormatDef mapinfoDef = new GisInputFormatDef("MAPINFO_MIF", new String[] { "*.mif;*.MIF" }, new String[] { "*.mif" });
-        mapinfoDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        mapinfoDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("MAPINFO_MIF", mapinfoDef);
 
         // SpatialLite
         GisInputFormatDef sqlLiteDef = new GisInputFormatDef("SPATIALITE", new String[] { "*.db;*.DB", "*.sqlite;*.SQLITE" }, new String[] { "*.db", "*.sqlite" });
-        sqlLiteDef.addParameterDef("DB_TABLE_NAME", ValueMeta.TYPE_STRING, true);
+        sqlLiteDef.addParameterDef("DB_TABLE_NAME", ValueMetaBase.TYPE_STRING, true);
         this.inputFormatDefs.put("SPATIALITE", sqlLiteDef);
 
         // DXF
         GisInputFormatDef dxfDef = new GisInputFormatDef("DXF", new String[] { "*.dxf;*.DXF" }, new String[] { "*.dxf" });
-        dxfDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
-        dxfDef.addParameterDef("CIRCLE_AS_POLYGON", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
-        dxfDef.addParameterDef("ELLIPSE_AS_POLYGON", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
-        dxfDef.addParameterDef("LINE_AS_POLYGON", ValueMeta.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("READ_XDATA", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("CIRCLE_AS_POLYGON", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("ELLIPSE_AS_POLYGON", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
+        dxfDef.addParameterDef("LINE_AS_POLYGON", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] { "TRUE", "FALSE" }), "FALSE");
         this.inputFormatDefs.put("DXF", dxfDef);
+
+        // GPX
+        GisInputFormatDef gpxDef = new GisInputFormatDef("GPX", new String[] { "*.gpx;*.GPX" }, new String[] { "*.gpx"});
+        gpxDef.addParameterDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] {"TRUE", "FALSE"}), "TRUE");
+        this.inputFormatDefs.put("GPX", gpxDef);
+        
+        // GeoPackage
+        GisInputFormatDef gpkgDef = new GisInputFormatDef("GEOPACKAGE", new String[] { "*.gpkg;*.GPKG"}, new String[] {"*.gpkg"});
+        gpkgDef.addParameterDef("DB_TABLE_NAME", ValueMetaBase.TYPE_STRING, true);
+        gpkgDef.addParameterDef("FORCE_TO_2D", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] {"TRUE", "FALSE"}), "TRUE");
+        gpkgDef.addParameterDef("FORCE_TO_MULTIGEOMETRY", ValueMetaBase.TYPE_BOOLEAN, true, Arrays.asList(new String[] {"TRUE", "FALSE"}), "FALSE");
+        this.inputFormatDefs.put("GEOPACKAGE", gpkgDef);
     }
 
     public List<GisInputFormatParameter> getInputFormatParameters() {
@@ -217,8 +232,25 @@ public class GisFileInputMeta extends BaseStepMeta implements StepMetaInterface 
                 String tableName = space.environmentSubstitute((String) getInputParameterValue("DB_TABLE_NAME"));
                 fileReader = new SpatialiteReader(space.environmentSubstitute(inputFileName), tableName, charset.displayName());
             } else if (inputFormat.equalsIgnoreCase("DXF")) {
-                fileReader = new DXFReader(space.environmentSubstitute(inputFileName), space.environmentSubstitute(geometryFieldName), charset.displayName(), false, false, false);
-            }
+                fileReader = new DXFReader(
+                    space.environmentSubstitute(inputFileName),
+                    space.environmentSubstitute(geometryFieldName),
+                    charset.displayName(),
+                    false,
+                    false,
+                    false,
+                    Boolean.valueOf(space.environmentSubstitute((String) getInputParameterValue("READ_XDATA"))));
+            }else if (inputFormat.equalsIgnoreCase("GPX")) {
+	            fileReader = new GPXReader(space.environmentSubstitute(inputFileName), space.environmentSubstitute(geometryFieldName), charset.displayName());
+	        } else if (inputFormat.equalsIgnoreCase("GEOPACKAGE")) {
+
+	            fileReader = new GeoPackageReader(
+	            	space.environmentSubstitute(inputFileName),
+	            	space.environmentSubstitute((String) getInputParameterValue("DB_TABLE_NAME")),
+	            	space.environmentSubstitute(geometryFieldName),
+	            	charset.displayName()
+	            );
+	        }
             r.addRowMeta(FeatureConverter.getRowMeta(fileReader.getFields(), origin));
         } catch (KettleException e) {
             e.printStackTrace();

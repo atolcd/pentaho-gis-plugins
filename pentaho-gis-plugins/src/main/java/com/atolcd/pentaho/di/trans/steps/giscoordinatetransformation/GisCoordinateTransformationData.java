@@ -24,9 +24,8 @@ package com.atolcd.pentaho.di.trans.steps.giscoordinatetransformation;
 
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.step.BaseStepData;
-import org.pentaho.di.trans.step.StepDataInterface;
 
-public class GisCoordinateTransformationData extends BaseStepData implements StepDataInterface {
+public class GisCoordinateTransformationData extends BaseStepData {
 
     public RowMetaInterface outputRowMeta;
 

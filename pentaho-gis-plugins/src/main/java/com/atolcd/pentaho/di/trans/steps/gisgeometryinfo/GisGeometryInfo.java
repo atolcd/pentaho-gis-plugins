@@ -25,6 +25,10 @@ package com.atolcd.pentaho.di.trans.steps.gisgeometryinfo;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import com.atolcd.pentaho.di.core.row.value.ValueMetaGeometry;
+import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.vividsolutions.jts.geom.Geometry;
+
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -33,15 +37,10 @@ import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
-import com.atolcd.pentaho.di.core.row.value.ValueMetaGeometry;
-import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
-import com.vividsolutions.jts.geom.Geometry;
-
-public class GisGeometryInfo extends BaseStep implements StepInterface {
+public class GisGeometryInfo extends BaseStep {
 
     private GisGeometryInfoData data;
     private GisGeometryInfoMeta meta;

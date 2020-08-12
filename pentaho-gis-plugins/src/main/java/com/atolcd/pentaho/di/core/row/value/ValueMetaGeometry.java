@@ -36,13 +36,23 @@ import java.sql.ResultSetMetaData;
 import java.sql.Types;
 import java.util.Date;
 
-import oracle.spatial.geometry.JGeometry;
-import oracle.spatial.util.WKT;
-import oracle.sql.STRUCT;
+import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ByteOrderValues;
+import com.vividsolutions.jts.io.InputStreamInStream;
+import com.vividsolutions.jts.io.OutputStreamOutStream;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
 
+import org.geolatte.geom.jts.JTS;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.DatabaseInterface;
 import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.database.MSSQLServerDatabaseMeta;
 import org.pentaho.di.core.database.MySQLDatabaseMeta;
 import org.pentaho.di.core.database.OracleDatabaseMeta;
 import org.pentaho.di.core.database.PostgreSQLDatabaseMeta;
@@ -59,20 +69,12 @@ import org.postgis.PGgeometryLW;
 import org.postgis.binary.BinaryParser;
 import org.postgis.binary.BinaryWriter;
 
-import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ByteOrderValues;
-import com.vividsolutions.jts.io.InputStreamInStream;
-import com.vividsolutions.jts.io.OutputStreamOutStream;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
+import oracle.spatial.geometry.JGeometry;
+import oracle.spatial.util.WKT;
+import oracle.sql.STRUCT;
 
 @ValueMetaPlugin(id = ""+ValueMetaGeometry.TYPE_GEOMETRY, name = "Geometry", description = "A geometry GIS object")
-public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterface, Cloneable {
+public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterface {
 
     // Postgis
     public static BinaryParser pgGeometryParser = new BinaryParser();
@@ -330,7 +332,6 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
         return getGeometry(object);
     }
 
-    @Override
     public Geometry getGeometry(Object object) throws KettleValueException {
 
         try {
@@ -485,13 +486,17 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
 
                 isDatabaseGeometryColumn = true;
 
-                // Oracle Spatial/Locator
+            // Oracle Spatial/Locator
             } else if (databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta && type == java.sql.Types.STRUCT && columnTypeName.equalsIgnoreCase("MDSYS.SDO_GEOMETRY")) {
 
                 isDatabaseGeometryColumn = true;
 
-                // MySQL
+            // MySQL
             } else if (databaseMeta.getDatabaseInterface() instanceof MySQLDatabaseMeta && type == java.sql.Types.BINARY && columnTypeName.equalsIgnoreCase("GEOMETRY")) {
+
+                isDatabaseGeometryColumn = true;
+            // MSSQL
+            } else if (databaseMeta.getDatabaseInterface() instanceof MSSQLServerDatabaseMeta && type == java.sql.Types.VARBINARY && columnTypeName.equalsIgnoreCase("GEOMETRY")) {
 
                 isDatabaseGeometryColumn = true;
 
@@ -526,7 +531,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
      * @return
      * @throws KettleDatabaseException
      */
-
+    @SuppressWarnings("unchecked")
     @Override
     public Object getValueFromResultSet(DatabaseInterface databaseInterface, ResultSet resultSet, int index) throws KettleDatabaseException {
 
@@ -547,7 +552,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
                     geometry = new WKTReader().read(type + coords);
                 }
 
-                // Oracle Spatial/Locator
+            // Oracle Spatial/Locator
             } else if (databaseInterface instanceof OracleDatabaseMeta) {
 
                 if (resultSet.getObject(index + 1) != null) {
@@ -572,7 +577,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
                     geometry = new WKTReader().read(wkt);
                 }
 
-                // MySQL
+            // MySQL
             } else if (databaseInterface instanceof MySQLDatabaseMeta) {
 
                 int byteOrder = ByteOrderValues.LITTLE_ENDIAN;
@@ -591,6 +596,20 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
                     geometry = new WKBReader().read(new InputStreamInStream(inputStream));
                 }
 
+            // MSSQL
+	        } else if (databaseInterface instanceof MSSQLServerDatabaseMeta) {
+	
+	         
+	            byte[] bytes = resultSet.getBytes(index + 1);
+	            if (bytes != null) {
+	
+                    org.locationtech.jts.geom.Geometry ms_geometry = JTS.to(org.geolatte.geom.codec.db.sqlserver.Decoders.decode(bytes));
+                    srid = ms_geometry.getSRID();
+                    String type = ms_geometry.getGeometryType().trim();
+                    String coords = ms_geometry.toText().trim();
+                    geometry = new WKTReader().read(type + coords);
+	            }
+	
             }
 
             if (srid != null) {
@@ -622,7 +641,9 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
         String retval = null;
 
         // Postgis or Oracle Spatial/Locator or Mysql
-        if (databaseInterface instanceof PostgreSQLDatabaseMeta || databaseInterface instanceof OracleDatabaseMeta || databaseInterface instanceof MySQLDatabaseMeta) {
+        if (databaseInterface instanceof PostgreSQLDatabaseMeta
+            || databaseInterface instanceof OracleDatabaseMeta 
+            || databaseInterface instanceof MySQLDatabaseMeta) {
 
             if (add_fieldname) {
                 retval = getName() + " ";
@@ -641,6 +662,10 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
                 // Mysql
             } else if (databaseInterface instanceof MySQLDatabaseMeta) {
                 retval += "GEOMETRY";
+
+            // MSSQL
+	        } else if (databaseInterface instanceof MSSQLServerDatabaseMeta) {
+	            retval += "GEOMETRY";
             }
 
             if (add_cr) {
@@ -693,7 +718,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
 
                 }
 
-                // Oracle Spatial/Locator
+            // Oracle Spatial/Locator
             } else if (databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta) {
 
                 Geometry geometry = getGeometry(data);
@@ -727,7 +752,7 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
 
                 }
 
-                // Mysql
+            // Mysql
             } else if (databaseMeta.getDatabaseInterface() instanceof MySQLDatabaseMeta) {
 
                 Geometry geometry = getGeometry(data);
@@ -747,6 +772,35 @@ public class ValueMetaGeometry extends ValueMetaBase implements GeometryInterfac
                 } else {
 
                     preparedStatement.setObject(index, null, Types.BINARY);
+
+                }
+
+            // MSSQL
+            } else if (databaseMeta.getDatabaseInterface() instanceof MSSQLServerDatabaseMeta) {
+
+                Geometry geometry = getGeometry(data);
+
+                if (geometry != null) {
+                	
+                    String wkt = null;
+
+                    if (GeometryUtils.getCoordinateDimension(geometry) == 3) {
+                        wkt = new WKTWriter(3).write(geometry);
+                    } else {
+                        wkt = new WKTWriter(2).write(geometry);
+                    }
+
+                    if (geometry.getSRID() > 0) {
+                        wkt = "SRID=" + geometry.getSRID() + ";" + wkt;
+                    }
+
+                    org.locationtech.jts.io.WKTReader reader = new org.locationtech.jts.io.WKTReader();
+                    org.locationtech.jts.geom.Geometry msGeom = reader.read(wkt);
+                    preparedStatement.setBytes(index, org.geolatte.geom.codec.db.sqlserver.Encoders.encode(JTS.from(msGeom)));
+                
+                } else {
+
+                    preparedStatement.setObject(index, null, Types.VARBINARY);
 
                 }
 

@@ -21,5 +21,7 @@
     <module>mifmid</module>
     <module>shp</module>
     <module>spatialite</module>
+    <module>gpx</module>
+    <module>svg</module>
   </modules>
 </project>

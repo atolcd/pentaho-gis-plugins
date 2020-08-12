@@ -34,8 +34,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.atolcd.pentaho.di.core.row.value.GeometryInterface;
+import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.vividsolutions.jts.dissolve.LineDissolver;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.util.GeometryCombiner;
+import com.vividsolutions.jts.operation.union.UnaryUnionOp;
+
 import org.apache.commons.math.stat.descriptive.rank.Percentile;
-import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.core.exception.KettleValueException;
@@ -43,9 +50,8 @@ import org.pentaho.di.core.row.RowDataUtil;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueDataUtil;
-import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
-import com.atolcd.pentaho.di.core.row.value.GeometryInterface;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.core.row.value.ValueMetaInteger;
 import org.pentaho.di.core.row.value.ValueMetaNumber;
 import org.pentaho.di.i18n.BaseMessages;
@@ -53,15 +59,8 @@ import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
-
-import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.util.GeometryCombiner;
-import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 
 /**
  * Groups informations based on aggregation rules. (sum, count, ...)
@@ -69,7 +68,7 @@ import com.vividsolutions.jts.operation.union.UnaryUnionOp;
  * @author Matt
  * @since 2-jun-2003
  */
-public class GisGroupBy extends BaseStep implements StepInterface {
+public class GisGroupBy extends BaseStep {
     private static Class<?> PKG = GisGroupByMeta.class; // for i18n purposes,
                                                         // needed by
                                                         // Translator2!!
@@ -259,7 +258,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
 
                     lineNr++;
 
-                    if (meta.isAddingLineNrInGroup() && !Const.isEmpty(meta.getLineNrInGroupField())) {
+                    if (meta.isAddingLineNrInGroup() && !meta.getLineNrInGroupField().isEmpty()) {
                         Object lineNrValue = new Long(lineNr);
                         // ValueMetaInterface lineNrValueMeta = new
                         // ValueMeta(meta.getLineNrInGroupField(),
@@ -316,7 +315,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 size += data.groupResult.length;
                 lineNr++;
 
-                if (meta.isAddingLineNrInGroup() && !Const.isEmpty(meta.getLineNrInGroupField())) {
+                if (meta.isAddingLineNrInGroup() && !meta.getLineNrInGroupField().isEmpty()) {
                     Object lineNrValue = new Long(lineNr);
                     // ValueMetaInterface lineNrValueMeta = new
                     // ValueMeta(meta.getLineNrInGroupField(),
@@ -576,7 +575,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
             case GisGroupByMeta.TYPE_GROUP_CONCAT_STRING:
                 if (!(subj == null)) {
                     String separator = "";
-                    if (!Const.isEmpty(meta.getValueField()[i])) {
+                    if (!meta.getValueField()[i].isEmpty()) {
                         separator = environmentSubstitute(meta.getValueField()[i]);
                     }
 
@@ -618,6 +617,15 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 }
                 break;
 
+            // GIS : Dissolution des géométries
+            case GisGroupByMeta.TYPE_GROUP_GEOMETRY_DISSOLVE:
+                if (subj != null) {
+                    Geometry geometryForDissolve = GeometryCombiner.combine(((GeometryInterface) valueMeta).getGeometry(value), ((GeometryInterface) subjMeta).getGeometry(subj));
+                    geometrySRID = ((GeometryInterface) subjMeta).getGeometry(subj).getSRID();
+                    data.agg[i] = geometryForDissolve;
+                }
+                break;
+
             default:
                 break;
             }
@@ -650,20 +658,20 @@ public class GisGroupBy extends BaseStep implements StepInterface {
             case GisGroupByMeta.TYPE_GROUP_AVERAGE:
             case GisGroupByMeta.TYPE_GROUP_CUMULATIVE_SUM:
             case GisGroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE:
-                vMeta = new ValueMeta(meta.getAggregateField()[i], subjMeta.isNumeric() ? subjMeta.getType() : ValueMetaInterface.TYPE_NUMBER);
+                vMeta = new ValueMetaBase(meta.getAggregateField()[i], subjMeta.isNumeric() ? subjMeta.getType() : ValueMetaInterface.TYPE_NUMBER);
                 break;
             case GisGroupByMeta.TYPE_GROUP_MEDIAN:
             case GisGroupByMeta.TYPE_GROUP_PERCENTILE:
-                vMeta = new ValueMeta(meta.getAggregateField()[i], ValueMetaInterface.TYPE_NUMBER);
+                vMeta = new ValueMetaBase(meta.getAggregateField()[i], ValueMetaInterface.TYPE_NUMBER);
                 v = new ArrayList<Double>();
                 break;
             case GisGroupByMeta.TYPE_GROUP_STANDARD_DEVIATION:
-                vMeta = new ValueMeta(meta.getAggregateField()[i], ValueMetaInterface.TYPE_NUMBER);
+                vMeta = new ValueMetaBase(meta.getAggregateField()[i], ValueMetaInterface.TYPE_NUMBER);
                 break;
             case GisGroupByMeta.TYPE_GROUP_COUNT_DISTINCT:
             case GisGroupByMeta.TYPE_GROUP_COUNT_ANY:
             case GisGroupByMeta.TYPE_GROUP_COUNT_ALL:
-                vMeta = new ValueMeta(meta.getAggregateField()[i], ValueMetaInterface.TYPE_INTEGER);
+                vMeta = new ValueMetaBase(meta.getAggregateField()[i], ValueMetaInterface.TYPE_INTEGER);
                 break;
             case GisGroupByMeta.TYPE_GROUP_FIRST:
             case GisGroupByMeta.TYPE_GROUP_LAST:
@@ -676,11 +684,11 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 v = r == null ? null : r[data.subjectnrs[i]];
                 break;
             case GisGroupByMeta.TYPE_GROUP_CONCAT_COMMA:
-                vMeta = new ValueMeta(meta.getAggregateField()[i], ValueMetaInterface.TYPE_STRING);
+                vMeta = new ValueMetaBase(meta.getAggregateField()[i], ValueMetaInterface.TYPE_STRING);
                 v = new StringBuilder();
                 break;
             case GisGroupByMeta.TYPE_GROUP_CONCAT_STRING:
-                vMeta = new ValueMeta(meta.getAggregateField()[i], ValueMetaInterface.TYPE_STRING);
+                vMeta = new ValueMetaBase(meta.getAggregateField()[i], ValueMetaInterface.TYPE_STRING);
                 v = new StringBuilder();
                 break;
 
@@ -688,6 +696,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
             case GisGroupByMeta.TYPE_GROUP_GEOMETRY_UNION:
             case GisGroupByMeta.TYPE_GROUP_GEOMETRY_EXTENT:
             case GisGroupByMeta.TYPE_GROUP_GEOMETRY_AGG:
+            case GisGroupByMeta.TYPE_GROUP_GEOMETRY_DISSOLVE:
                 vMeta = subjMeta.clone();
                 vMeta.setName(meta.getAggregateField()[i]);
                 v = new GeometryFactory().createGeometryCollection(null);
@@ -758,7 +767,7 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                 case GisGroupByMeta.TYPE_GROUP_SUM:
                     break;
                 case GisGroupByMeta.TYPE_GROUP_AVERAGE:
-                    ag = ValueDataUtil.divide(data.aggMeta.getValueMeta(i), ag, new ValueMeta("c", ValueMetaInterface.TYPE_INTEGER), new Long(data.counts[i]));
+                    ag = ValueDataUtil.divide(data.aggMeta.getValueMeta(i), ag, new ValueMetaBase("c", ValueMetaInterface.TYPE_INTEGER), new Long(data.counts[i]));
                     break;
                 case GisGroupByMeta.TYPE_GROUP_MEDIAN:
                 case GisGroupByMeta.TYPE_GROUP_PERCENTILE:
@@ -820,6 +829,15 @@ public class GisGroupBy extends BaseStep implements StepInterface {
                     Geometry geomtryAgg = geomAggGroup;
                     geomtryAgg.setSRID(geometrySRID);
                     ag = geomtryAgg;
+                    break;
+
+                // GIS : Dissolution des géométries
+                case GisGroupByMeta.TYPE_GROUP_GEOMETRY_DISSOLVE:
+
+                    Geometry geomDissolveGroup = ((GeometryInterface) data.aggMeta.getValueMeta(i)).getGeometry(ag);
+                    Geometry geometryDissolve = LineDissolver.dissolve(geomDissolveGroup);
+                    geometryDissolve.setSRID(geometrySRID);
+                    ag = geometryDissolve;
                     break;
 
                 default:

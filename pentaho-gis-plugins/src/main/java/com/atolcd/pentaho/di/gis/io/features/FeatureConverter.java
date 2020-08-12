@@ -30,8 +30,12 @@ import com.atolcd.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaBoolean;
+import org.pentaho.di.core.row.value.ValueMetaDate;
+import org.pentaho.di.core.row.value.ValueMetaInteger;
+import org.pentaho.di.core.row.value.ValueMetaNumber;
+import org.pentaho.di.core.row.value.ValueMetaString;
 
 import com.atolcd.pentaho.di.core.row.value.ValueMetaGeometry;
 import com.atolcd.pentaho.di.gis.io.features.Field.FieldType;
@@ -60,27 +64,27 @@ public final class FeatureConverter {
 
             switch (valueMetaInterface.getType()) {
 
-            case ValueMeta.TYPE_BOOLEAN:
+            case ValueMetaInterface.TYPE_BOOLEAN:
                 field = new Field(fieldName, FieldType.BOOLEAN, length, precision);
                 break;
 
-            case ValueMeta.TYPE_INTEGER:
+            case ValueMetaInterface.TYPE_INTEGER:
                 field = new Field(fieldName, FieldType.LONG, length, precision);
                 break;
 
-            case ValueMeta.TYPE_NUMBER:
+            case ValueMetaInterface.TYPE_NUMBER:
                 field = new Field(fieldName, FieldType.DOUBLE, length, precision);
                 break;
 
-            case ValueMeta.TYPE_BIGNUMBER:
+            case ValueMetaInterface.TYPE_BIGNUMBER:
                 field = new Field(fieldName, FieldType.DOUBLE, length, precision);
                 break;
 
-            case ValueMeta.TYPE_STRING:
+            case ValueMetaInterface.TYPE_STRING:
                 field = new Field(fieldName, FieldType.STRING, length, precision);
                 break;
 
-            case ValueMeta.TYPE_DATE:
+            case ValueMetaInterface.TYPE_DATE:
                 field = new Field(fieldName, FieldType.DATE, length, precision);
                 break;
 
@@ -152,23 +156,23 @@ public final class FeatureConverter {
 
             } else if (field.getType().equals(FieldType.BOOLEAN)) {
 
-                valueMeta = new ValueMeta(field.getName(), ValueMetaInterface.TYPE_BOOLEAN);
+                valueMeta = new ValueMetaBoolean(field.getName());
 
             } else if (field.getType().equals(FieldType.DATE)) {
 
-                valueMeta = new ValueMeta(field.getName(), ValueMetaInterface.TYPE_DATE);
+                valueMeta = new ValueMetaDate(field.getName());
 
             } else if (field.getType().equals(FieldType.DOUBLE)) {
 
-                valueMeta = new ValueMeta(field.getName(), ValueMetaInterface.TYPE_NUMBER);
+                valueMeta = new ValueMetaNumber(field.getName());
 
             } else if (field.getType().equals(FieldType.LONG)) {
 
-                valueMeta = new ValueMeta(field.getName(), ValueMetaInterface.TYPE_INTEGER);
+                valueMeta = new ValueMetaInteger(field.getName());
 
             } else {
 
-                valueMeta = new ValueMeta(field.getName(), ValueMetaInterface.TYPE_STRING);
+                valueMeta = new ValueMetaString(field.getName());
 
             }
 

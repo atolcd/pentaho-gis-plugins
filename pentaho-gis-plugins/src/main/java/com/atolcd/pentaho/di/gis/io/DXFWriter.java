@@ -1,55 +1,34 @@
 package com.atolcd.pentaho.di.gis.io;
 
-/*
- * #%L
- * Pentaho Data Integrator GIS Plugin
- * %%
- * Copyright (C) 2015 Atol CD
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/lgpl-3.0.html>.
- * #L%
- */
-
-
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.pentaho.di.core.exception.KettleException;
-
+import com.atolcd.gis.dxf.Entity;
+import com.atolcd.gis.dxf.Layer;
 import com.atolcd.pentaho.di.gis.io.features.Feature;
+import com.atolcd.pentaho.di.gis.io.features.Field.FieldType;
+import com.atolcd.pentaho.di.gis.io.features.Value;
 import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
 import com.vividsolutions.jts.geom.Geometry;
+
+import org.pentaho.di.core.exception.KettleException;
 
 import fr.michaelm.jump.drivers.dxf.DxfFile;
 
 public class DXFWriter extends AbstractFileWriter {
 
-    private DxfFile dxfFile;
     private String dxfFileName;
     private String layerName;
     private String layerNameFieldName;
     private boolean forceTo2DGeometry;
     private int precision;
+    private boolean exportWithAttributs;
 
-    public DXFWriter(String fileName, String layerName, String geometryFieldName, String charsetName) throws KettleException {
+    public DXFWriter(String fileName, String layerName, String geometryFieldName, String charsetName)
+            throws KettleException {
 
         super(geometryFieldName, charsetName);
         this.dxfFileName = checkFilename(fileName).getFile();
@@ -59,10 +38,10 @@ public class DXFWriter extends AbstractFileWriter {
             this.layerName = checkLayerName(layerName);
         }
         this.layerNameFieldName = null;
-        this.dxfFile = new DxfFile();
+        new DxfFile();
         this.forceTo2DGeometry = false;
         this.precision = 0;
-
+        this.exportWithAttributs = true;
     }
 
     public int getPrecision() {
@@ -85,53 +64,46 @@ public class DXFWriter extends AbstractFileWriter {
         this.layerNameFieldName = layerNameFieldName;
     }
 
+    public void setExportWithAttributs(boolean exportWithAttributs) {
+		this.exportWithAttributs = exportWithAttributs;
+	}
+
     public void writeFeatures(List<Feature> features) throws KettleException {
 
         try {
 
-            Set<String> layerNames = new HashSet<String>();
-            List<Geometry> geometries = new ArrayList<Geometry>();
-
-            for (Feature feature : features) {
-
-                Geometry geometry = (Geometry) feature.getValue(feature.getField(this.geometryFieldName));
-
-                if (!GeometryUtils.isNullOrEmptyGeometry(geometry)) {
-
-                    if (this.forceTo2DGeometry) {
-                        geometry = GeometryUtils.get2DGeometry(geometry);
-                    }
-
-                    if (this.layerNameFieldName != null) {
-
-                        String featureLayerName = (String) feature.getValue(feature.getField(this.layerNameFieldName));
-                        if (featureLayerName != null && !featureLayerName.isEmpty()) {
-
-                            featureLayerName = checkLayerName(featureLayerName);
-                            layerNames.add(featureLayerName);
-                            geometry.setUserData(featureLayerName);
-
-                        } else {
-                            geometry.setUserData(this.layerName);
-                            layerNames.add(this.layerName);
-                        }
-
-                    } else {
-
-                        geometry.setUserData(this.layerName);
-                        layerNames.add(this.layerName);
-
-                    }
-
-                    geometries.add(geometry);
-
-                }
+            com.atolcd.gis.dxf.DXFWriter dxfWriter= new com.atolcd.gis.dxf.DXFWriter(this.dxfFileName);
+            
+        	//Plusieurs layers potentiels
+            if (this.layerNameFieldName != null) {
+            	
+            
+            }else{
+            	
+            	//Un seul Layer
+            	Layer layer = new Layer(this.layerName);
+            	
+            	long fid = 0;
+            	for (Feature feature : features) {
+            		
+            		 Geometry geometry = (Geometry) feature.getValue(feature.getField(this.geometryFieldName));
+            		  if (!GeometryUtils.isNullOrEmptyGeometry(geometry)) {
+                      	layer.getEntities().add(toEntity(feature,String.valueOf(fid),null));
+                        fid++;
+            		  }
+            		
+            	}
+            	
+            	dxfWriter.addLayer(layer);
+           	
             }
-
-            this.dxfFile.write(geometries, layerNames.toArray(new String[layerNames.size()]), new FileWriter(this.dxfFileName), this.precision);
+        	
+            dxfWriter.write(this.precision, this.exportWithAttributs);
 
         } catch (IOException e) {
             throw new KettleException("Error writing features to " + this.dxfFileName, e);
+        } catch (Exception e) {
+            throw new KettleException("Error converting to Entity " + this.dxfFileName, e);
         }
     }
 
@@ -141,6 +113,63 @@ public class DXFWriter extends AbstractFileWriter {
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         return pattern.matcher(normalizedString).replaceAll("").replaceAll("[^a-zA-Z]+", "_").toUpperCase();
 
+    }
+
+    private Entity toEntity(Feature feature, String id, String text) throws Exception {
+
+    	Geometry geometry = (Geometry) feature.getValue(feature.getField(this.geometryFieldName));
+    	
+    	if(this.forceTo2DGeometry){
+    		geometry = GeometryUtils.get2DGeometry(geometry);
+    	}
+    	
+    	Entity entity = new Entity(
+    			id,
+    			geometry,
+    			"",
+    			text);
+    	
+    	if(this.exportWithAttributs){
+
+    		for(Value value : feature.getValues()){
+    		
+    			if(!value.getField().getType().equals(FieldType.GEOMETRY)
+    					&& !value.getField().getType().equals(FieldType.BINARY)){
+
+    				Class<?> classz = null;
+    				
+    		        if (value.getField().getType().equals(FieldType.STRING)) {
+    		        	classz = String.class;
+    		        
+    		        } else if (value.getField().getType().equals(FieldType.LONG)) {
+    		        	classz = Long.class;
+    		        
+    		        } else if (value.getField().getType().equals(FieldType.DOUBLE)) {
+    		        	classz = Double.class;
+    		       
+    		        } else if (value.getField().getType().equals(FieldType.BOOLEAN)) {
+    		        	classz = Boolean.class;
+    		       
+    		        } else if (value.getField().getType().equals(FieldType.DATE)) {
+    		        	classz = Date.class;
+    		        }
+    		        
+    		        if(classz !=null){
+    		        
+	    		        entity.AddExtendedData(
+	    					value.getField().getName(),
+	    					String.class,
+	    					String.valueOf(value.getValue())
+	    				);
+    		        
+    		        }
+    			}
+    				
+    		}
+    		
+    	}
+    			
+    	return entity;
     }
 
 }

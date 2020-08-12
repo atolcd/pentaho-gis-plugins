@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.row.value.ValueMetaBase;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
@@ -205,9 +205,10 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
 
                 if (wOutputFormat.getText() != null && !wOutputFormat.getText().isEmpty()) {
 
-                    // Si ESRI_SHP ou SPATIALITE ou SQLITE ou DXF pas de servlet
-                    if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("ESRI_SHP") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SPATIALITE")
-                            || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("DXF")) {
+                    // Si ESRI_SHP, DXF, GEOPACKAGE pas de servlet
+                    if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("ESRI_SHP")
+                        || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("GEOPACKAGE")
+                        || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("DXF")) {
 
                         wlDataToServlet.setEnabled(false);
                         wDataToServlet.setEnabled(false);
@@ -221,14 +222,17 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
                     }
 
                     // Si KML ou Spatalite ou sqlite UTF8 forcé
-                    if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("KML") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SPATIALITE")
-                            || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("DXF")) {
+                    if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("KML") 
+                        || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("GPX")
+                        || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("GEOPACKAGE")
+                        || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("DXF")) {
 
                         wEncoding.setEnabled(false);
                         wlEncoding.setEnabled(false);
                         
-                        if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("KML") || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SPATIALITE")
-                                || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE")){
+                        if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("KML")
+                            || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("GPX")
+                            || getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("GEOPACKAGE")){
                         
                         	wEncoding.setText("UTF-8");
                         
@@ -236,26 +240,11 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
                         	//DXF
                         	wEncoding.setText("windows-1252");
                         }
-
                     } else {
-
                         wEncoding.setEnabled(true);
                         wlEncoding.setEnabled(true);
-
+                        wEncoding.setText("");
                     }
-
-                    // Si sqlite : pas besoin de géométrie
-                    if (getFormatKey(wOutputFormat.getText()).equalsIgnoreCase("SQLITE")) {
-
-                        wlGeometryField.setEnabled(false);
-                        wGeometryField.setEnabled(false);
-                        wGeometryField.setText("");
-
-                    } else {
-                        wlGeometryField.setEnabled(true);
-                        wGeometryField.setEnabled(true);
-                    }
-
                 }
 
                 clearTables();
@@ -437,7 +426,7 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
         fdFixedParams.left = new FormAttachment(0, 0);
         fdFixedParams.top = new FormAttachment(wlFixedParams, margin);
         fdFixedParams.right = new FormAttachment(100, 0);
-        fdFixedParams.height = 150;
+        fdFixedParams.height = 200;
         wFixedParams.setLayoutData(fdFixedParams);
 
         // Boutons Ok et Annuler
@@ -492,7 +481,7 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
         });
 
         loadEncodings();
-        wGeometryField.setItems(getFieldsFromType(ValueMeta.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY), false));
+        wGeometryField.setItems(getFieldsFromType(ValueMetaBase.getTypeDesc(ValueMetaGeometry.TYPE_GEOMETRY), false));
         loadData();
         setDataToServletFlags();
         input.setChanged(changed);
@@ -962,7 +951,7 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
 
                 // Paramétrage de la boîte de dialogue (commun)
                 String dialogTitle = BaseMessages.getString(PKG, "GisFileOutput.Params.Dialog.PARAM_VALUE.Title");
-                String dialogParamComment = BaseMessages.getString(PKG, "GisFileOutput.Params." + paramKey + ".Description") + " (" + ValueMeta.getTypeDesc(paramValueMetaType)
+                String dialogParamComment = BaseMessages.getString(PKG, "GisFileOutput.Params." + paramKey + ".Description") + " (" + ValueMetaBase.getTypeDesc(paramValueMetaType)
                         + ")";
 
                 if (values.isEmpty()) {
@@ -1044,7 +1033,7 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
 
                 // Paramètrage de la boîte de dialogue
                 String dialogTitle = BaseMessages.getString(PKG, "GisFileOutput.Params.Dialog.PARAM_FIELD.Title");
-                String dialogParamComment = BaseMessages.getString(PKG, "GisFileOutput.Params." + paramKey + ".Description") + " (" + ValueMeta.getTypeDesc(paramValueMetaType)
+                String dialogParamComment = BaseMessages.getString(PKG, "GisFileOutput.Params." + paramKey + ".Description") + " (" + ValueMetaBase.getTypeDesc(paramValueMetaType)
                         + ")";
                 if (!values.isEmpty()) {
                     dialogParamComment = dialogParamComment + "\n\n" + BaseMessages.getString(PKG, "GisFileOutput.Params.Dialog.PARAM_ALLOWED_VALUES.Description") + " :\n"
@@ -1052,7 +1041,7 @@ public class GisFileOutputDialog extends BaseStepDialog implements StepDialogInt
                 }
 
                 // Valeur vide dans la liste si champ non obligatoire
-                String[] fields = getFieldsFromType(ValueMeta.getTypeDesc(paramValueMetaType),
+                String[] fields = getFieldsFromType(ValueMetaBase.getTypeDesc(paramValueMetaType),
                         !input.isParameterValueRequired(formatKey, GisOutputFormatParameterDef.TYPE_FIELD, paramKey));
 
                 // Choix dans une liste

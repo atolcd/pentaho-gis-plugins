@@ -24,6 +24,11 @@ package com.atolcd.pentaho.di.trans.steps.giscoordinatetransformation;
 
 import java.util.List;
 
+import com.atolcd.pentaho.di.core.row.value.GeometryInterface;
+import com.atolcd.pentaho.di.gis.utils.CoordinateTransformer;
+import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.vividsolutions.jts.geom.Geometry;
+
 import org.cts.CRSFactory;
 import org.cts.crs.CRSException;
 import org.cts.crs.CoordinateReferenceSystem;
@@ -39,20 +44,14 @@ import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
-import com.atolcd.pentaho.di.core.row.value.GeometryInterface;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
-import com.atolcd.pentaho.di.gis.utils.CoordinateTransformer;
-import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
-import com.vividsolutions.jts.geom.Geometry;
-
-public class GisCoordinateTransformation extends BaseStep implements StepInterface {
+public class GisCoordinateTransformation extends BaseStep {
 
     private GisCoordinateTransformationData data;
     private GisCoordinateTransformationMeta meta;

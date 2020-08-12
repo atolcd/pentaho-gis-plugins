@@ -4,7 +4,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <groupId>com.atolcd.pentaho.di</groupId>
   <artifactId>pentaho-gis-plugins</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
   <packaging>jar</packaging>
 
   <name>Pentaho's Data Integrator GIS Plugins</name>
@@ -12,9 +12,21 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <profiles>
     <profile>
-      <id>pentaho-8</id>
+      <id>pentaho-9</id>
       <activation>
         <activeByDefault>true</activeByDefault>
+        <property>
+          <name>pentaho</name>
+          <value>9</value>
+        </property>
+      </activation>
+      <properties>
+        <pentaho.version>9.0.0.0-423</pentaho.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>pentaho-8</id>
+      <activation>
         <property>
           <name>pentaho</name>
           <value>8</value>
@@ -63,7 +75,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   </profiles>
 
   <properties>
-    <pentaho>8</pentaho>
+    <pentaho>9</pentaho>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -252,6 +264,56 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <artifactId>JavaAPIforKml</artifactId>
       <version>2.2.1</version>
     </dependency>
+    <dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom2</artifactId>
+			<version>2.0.6</version>
+		</dependency>
+    <dependency>
+			<groupId>mil.nga.geopackage</groupId>
+			<artifactId>geopackage</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>mil.nga.geopackage</groupId>
+			<artifactId>geopackage-core</artifactId>
+			<version>4.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>mil.nga</groupId>
+      <artifactId>sf</artifactId>
+      <version>2.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>mil.nga.sf</groupId>
+      <artifactId>sf-proj</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>mil.nga.sf</groupId>
+      <artifactId>sf-wkb</artifactId>
+      <version>2.0.3</version>
+    </dependency>
+    <dependency>
+			<groupId>com.j256.ormlite</groupId>
+			<artifactId>ormlite-core</artifactId>
+			<version>5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.j256.ormlite</groupId>
+			<artifactId>ormlite-jdbc</artifactId>
+			<version>5.1</version>
+		</dependency>
+		<dependency>
+      <groupId>org.locationtech.proj4j</groupId>
+      <artifactId>proj4j</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+			<groupId>org.geolatte</groupId>
+			<artifactId>geolatte-geom</artifactId>
+			<version>1.6.0</version>
+		</dependency>
     <!-- Atol projects -->
     <dependency>
       <groupId>com.atolcd.gis</groupId>
@@ -289,6 +351,16 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <groupId>com.atolcd.gis</groupId>
       <artifactId>spatialite</artifactId>
       <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>gpx</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atolcd.gis</groupId>
+      <artifactId>svg</artifactId>
+      <version>1.0</version>
     </dependency>
   </dependencies>
 

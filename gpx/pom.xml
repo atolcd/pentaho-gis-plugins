@@ -1,0 +1,94 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.atolcd.gis</groupId>
+  <artifactId>gpx</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+
+  <name>AtolCD gpx</name>
+  <description>AtolCD gpx</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.2</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <!-- Local repository -->
+    <repository>
+      <id>local-maven-repo</id>
+      <name>Local Maven Repo</name>
+      <url>file://${project.basedir}/../local-maven-repo</url>
+    </repository>
+    <repository>
+      <id>52north.org-releases</id>
+      <name>52north.org-releases</name>
+      <url>http://52north.org/maven/repo/releases/</url>
+    </repository>
+    <repository>
+      <id>datanucleus</id>
+      <name>datanucleus</name>
+      <url>http://www.datanucleus.org/downloads/maven2/</url>
+    </repository>
+    <repository>
+      <id>jboss.org</id>
+      <name>jboss.org</name>
+      <url>https://repository.jboss.org</url>
+    </repository>
+    <repository>
+      <id>pentaho-releases</id>
+      <url>https://nexus.pentaho.org/content/groups/omni/</url>
+    </repository>
+    <repository>
+      <id>lds-main</id>
+      <name>Main Approved LDS Repo</name>
+      <url>http://code.lds.org/nexus/content/groups/main-repo</url>
+    </repository>
+    <repository>
+      <id>maven-us.nuxeo.org</id>
+      <name>maven-us.nuxeo.org</name>
+      <url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>axiomalaska</id>
+      <name>axiomalaska</name>
+      <url>http://nexus.axiomalaska.com/nexus/content/groups/public/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts-core</artifactId>
+      <version>1.14.0</version>
+    </dependency>
+	<dependency>
+		<groupId>org.jdom</groupId>
+		<artifactId>jdom2</artifactId>
+		<version>2.0.6</version>
+	</dependency>
+  </dependencies>
+
+  <organization>
+    <name>Atol CD</name>
+    <url>http://www.atolcd.com</url>
+  </organization>
+</project>
