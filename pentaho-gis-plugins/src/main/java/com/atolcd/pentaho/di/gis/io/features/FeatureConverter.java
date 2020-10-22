@@ -202,7 +202,8 @@ public final class FeatureConverter {
             Object value = null;
 
             Object featureValue = feature.getValue(field);
-            if (featureValue != null) {
+            try {
+            	if (featureValue != null) {
 
                 if (field.getType().equals(FieldType.GEOMETRY)) {
 
@@ -216,19 +217,34 @@ public final class FeatureConverter {
 
                     value = valueMeta.getDate(featureValue);
 
-                } else if (field.getType().equals(FieldType.DOUBLE)) {
+				} else if (field.getType().equals(FieldType.DOUBLE)) {
 
-                    value = valueMeta.getNumber(featureValue);
+					try {
 
-                } else if (field.getType().equals(FieldType.LONG)) {
+						 value = valueMeta.getNumber(Double.parseDouble(String.valueOf(featureValue)));
 
-                    value = valueMeta.getInteger(Long.parseLong(String.valueOf(featureValue)));
+						} catch (NumberFormatException e) {
 
-                } else {
-                    value = valueMeta.getString(String.valueOf(featureValue));
-                }
+						 value = valueMeta.getNumber(Long.valueOf((String.valueOf(featureValue))).doubleValue());
 
-            }
+    					}
+
+				    } else if (field.getType().equals(FieldType.LONG)) {
+
+						value = valueMeta.getInteger(Long.parseLong(String.valueOf(featureValue)));
+
+				    } else {
+
+				        value = valueMeta.getString(String.valueOf(featureValue));
+
+				    }
+
+				}
+			} catch (NumberFormatException e) {
+				value = null;
+			} catch (KettleValueException e) {
+				value = null;
+			}
 
             row[fieldIndex] = value;
 

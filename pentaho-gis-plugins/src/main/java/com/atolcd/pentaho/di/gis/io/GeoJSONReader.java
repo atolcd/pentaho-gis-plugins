@@ -26,6 +26,7 @@ package com.atolcd.pentaho.di.gis.io;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,8 +66,7 @@ public class GeoJSONReader extends AbstractFileReader {
 
         if (this.json instanceof FeatureCollection) {
 
-            org.wololo.geojson.Feature geoJsonfeature = ((FeatureCollection) json).getFeatures()[0];
-            for (Map.Entry<String, Object> entry : geoJsonfeature.getProperties().entrySet()) {
+            for (Map.Entry<String, Object> entry : selectPropertyTypes(((FeatureCollection) json)).entrySet()) {
 
                 Field field = null;
                 String fieldName = entry.getKey();
@@ -92,6 +92,14 @@ public class GeoJSONReader extends AbstractFileReader {
 
                     field = new Field(fieldName, FieldType.DATE, null, null);
 
+                }else if (value == null) {
+                	// Should log this
+                	field = new Field(fieldName, FieldType.STRING, null, null);
+                	                	
+                }else {
+                	// Should log this
+                	field = new Field(fieldName, FieldType.STRING, null, null);
+                	
                 }
 
                 this.fields.add(field);
@@ -105,6 +113,19 @@ public class GeoJSONReader extends AbstractFileReader {
         }
     }
 
+	private Map<String, Object> selectPropertyTypes(FeatureCollection collection) {
+		Map<String, Object> props = new HashMap<String, Object>();
+
+		for (org.wololo.geojson.Feature f : collection.getFeatures()) {
+			for (Map.Entry<String, Object> entry : f.getProperties().entrySet()) {
+				if (entry.getValue() != null) {
+					props.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		return props;
+	}
+    
     public List<Feature> getFeatures() {
 
         List<Feature> features = new ArrayList<Feature>();
