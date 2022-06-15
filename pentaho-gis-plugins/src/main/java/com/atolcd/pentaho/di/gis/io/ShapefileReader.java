@@ -34,6 +34,7 @@ import org.geotools.dbffile.DbfFile;
 import org.geotools.shapefile.Shapefile;
 import org.geotools.shapefile.ShapefileHeader;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.trans.steps.xbaseinput.XBase;
 
 import com.atolcd.pentaho.di.gis.io.features.Feature;
 import com.atolcd.pentaho.di.gis.io.features.Field;
@@ -58,18 +59,17 @@ public class ShapefileReader extends AbstractFileReader {
         super(null, geometryFieldName, charsetName);
 
         try {
-
-            this.shpFileExist = new File(checkFilename(fileName).getFile()).exists();
-            this.dbfFileExist = new File(checkFilename(replaceFileExtension(fileName, ".shp", ".dbf")).getFile()).exists();
+            this.shpFileExist = new File(checkFilename(fileName)).exists();
+            this.dbfFileExist = new File(checkFilename(replaceFileExtension(fileName, ".shp", ".dbf"))).exists();
 
             if (!this.shpFileExist) {
                 throw new KettleException("Missing " + fileName + " file");
             } else {
-                this.shpFileName = checkFilename(fileName).getFile();
+                this.shpFileName = checkFilename(fileName);
             }
 
             if (this.dbfFileExist) {
-                this.dbfFileName = checkFilename(replaceFileExtension(fileName, ".shp", ".dbf")).getFile();
+                this.dbfFileName = checkFilename(replaceFileExtension(fileName, ".shp", ".dbf"));
             }
 
             // Entête shapefile
@@ -153,24 +153,43 @@ public class ShapefileReader extends AbstractFileReader {
 
             if (this.dbfFileExist) {
 
-                DbfFile dbfFile = new DbfFile(this.dbfFileName, this.charset);
+                // DbfFile dbfFile = new DbfFile(this.dbfFileName, this.charset);
+                // for (int i = 0; i < features.size(); i++) {
+
+                //     byte[] record = dbfFile.GetDbfRec(i);
+
+                //     for (int j = 0; j < this.getFields().size() - 1; j++) {
+                //         features.get(i).addValue(this.fields.get(j + 1), dbfFile.ParseRecordColumn(record, j));
+                //     }
+
+                // }
+
+                // dbfFile.close();
+
+                
+                XBase xbase = new XBase(null, dbfFileName);
+
+                xbase.setDbfFile(dbfFileName);
+                xbase.open();
+                
+                xbase.getReader().setCharactersetName(this.charset.name());
                 for (int i = 0; i < features.size(); i++) {
 
-                    byte[] record = dbfFile.GetDbfRec(i);
+                    Object[] record = xbase.getReader().nextRecord();
+
                     for (int j = 0; j < this.getFields().size() - 1; j++) {
-                        features.get(i).addValue(this.fields.get(j + 1), dbfFile.ParseRecordColumn(record, j));
+                        features.get(i).addValue(this.fields.get(j + 1), record[j]);
                     }
 
                 }
-
-                dbfFile.close();
+                xbase.close();
 
             }
 
         } catch (IOException e) {
-            throw new KettleException("Error reading features" + this.shpFileName, e);
+            throw new KettleException("Error reading features" + this.shpFileName + this.dbfFileName, e);
         } catch (Exception e) {
-            throw new KettleException("Error reading features" + this.shpFileName, e);
+            throw new KettleException("Error reading features" + this.shpFileName + this.dbfFileName, e);
         }
 
         return features;

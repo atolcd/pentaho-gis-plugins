@@ -74,12 +74,12 @@ public class GeoPackageReader extends AbstractFileReader {
 
         super(tableName, null, charsetName);
 
-        this.gpkgFileExist = new File(checkFilename(fileName).getFile()).exists();
+        this.gpkgFileExist = new File(checkFilename(fileName)).exists();
 
         if (!this.gpkgFileExist) {
             throw new KettleException("Missing " + fileName + " file");
         } else {
-            this.gpkgFileName = checkFilename(fileName).getFile();
+            this.gpkgFileName = checkFilename(fileName);
         }
         
         if(tableName.equalsIgnoreCase("*")){
