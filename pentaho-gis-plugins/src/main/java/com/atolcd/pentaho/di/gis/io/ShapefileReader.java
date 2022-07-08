@@ -40,6 +40,8 @@ import com.atolcd.pentaho.di.gis.io.features.Feature;
 import com.atolcd.pentaho.di.gis.io.features.Field;
 import com.atolcd.pentaho.di.gis.io.features.Field.FieldType;
 import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -152,30 +154,23 @@ public class ShapefileReader extends AbstractFileReader {
             shapefile.close();
 
             if (this.dbfFileExist) {
-
-                // DbfFile dbfFile = new DbfFile(this.dbfFileName, this.charset);
-                // for (int i = 0; i < features.size(); i++) {
-
-                //     byte[] record = dbfFile.GetDbfRec(i);
-
-                //     for (int j = 0; j < this.getFields().size() - 1; j++) {
-                //         features.get(i).addValue(this.fields.get(j + 1), dbfFile.ParseRecordColumn(record, j));
-                //     }
-
-                // }
-
-                // dbfFile.close();
-
                 
                 XBase xbase = new XBase(null, dbfFileName);
 
                 xbase.setDbfFile(dbfFileName);
                 xbase.open();
+
+                DBFReader reader = xbase.getReader();
+                reader.setCharactersetName(this.charset.name());
                 
-                xbase.getReader().setCharactersetName(this.charset.name());
+                for (int i = 0; i < xbase.getReader().getFieldCount(); i++){
+                    if (reader.getField(i).getDataType() == DBFField.FIELD_TYPE_F){
+                        reader.getField(i).setDataType(DBFField.FIELD_TYPE_N);
+                    }
+                }
                 for (int i = 0; i < features.size(); i++) {
 
-                    Object[] record = xbase.getReader().nextRecord();
+                    Object[] record = reader.nextRecord();
 
                     for (int j = 0; j < this.getFields().size() - 1; j++) {
                         features.get(i).addValue(this.fields.get(j + 1), record[j]);

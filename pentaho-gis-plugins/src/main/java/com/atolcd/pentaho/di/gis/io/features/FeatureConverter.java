@@ -221,6 +221,7 @@ public final class FeatureConverter {
                     value = valueMeta.getNumber(featureValue);
 
                 } else if (field.getType().equals(FieldType.LONG)) {
+
                     if(featureValue instanceof Double){
                         featureValue = Double.valueOf( (Double) featureValue).longValue();
                     }
