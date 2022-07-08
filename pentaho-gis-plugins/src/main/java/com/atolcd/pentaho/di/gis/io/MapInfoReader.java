@@ -50,13 +50,13 @@ public class MapInfoReader extends AbstractFileReader {
 
         try {
 
-            this.mifFileExist = new File(checkFilename(fileName).getFile()).exists();
-            this.midFileExist = new File(checkFilename(replaceFileExtension(fileName, ".mif", ".mid")).getFile()).exists();
+            this.mifFileExist = new File(checkFilename(fileName)).exists();
+            this.midFileExist = new File(checkFilename(replaceFileExtension(fileName, ".mif", ".mid"))).exists();
 
             if (!this.mifFileExist) {
                 throw new KettleException("Missing " + fileName + " file");
             } else {
-                this.mifFileName = checkFilename(fileName).getFile();
+                this.mifFileName = checkFilename(fileName);
             }
 
             if (!this.midFileExist) {

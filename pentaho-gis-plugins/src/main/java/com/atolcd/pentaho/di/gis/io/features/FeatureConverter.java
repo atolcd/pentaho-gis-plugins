@@ -222,10 +222,14 @@ public final class FeatureConverter {
 
                 } else if (field.getType().equals(FieldType.LONG)) {
 
+                    if(featureValue instanceof Double){
+                        featureValue = Double.valueOf( (Double) featureValue).longValue();
+                    }
+
                     value = valueMeta.getInteger(Long.parseLong(String.valueOf(featureValue)));
 
                 } else {
-                    value = valueMeta.getString(String.valueOf(featureValue));
+                    value = valueMeta.getString(String.valueOf(featureValue).trim());
                 }
 
             }

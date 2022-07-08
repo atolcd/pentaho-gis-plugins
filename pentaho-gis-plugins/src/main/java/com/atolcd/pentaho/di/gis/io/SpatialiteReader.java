@@ -49,12 +49,12 @@ public class SpatialiteReader extends AbstractFileReader {
 
         super(tableName, null, charsetName);
 
-        this.spatialiteFileExist = new File(checkFilename(fileName).getFile()).exists();
+        this.spatialiteFileExist = new File(checkFilename(fileName)).exists();
 
         if (!this.spatialiteFileExist) {
             throw new KettleException("Missing " + fileName + " file");
         } else {
-            this.spatialiteFileName = checkFilename(fileName).getFile();
+            this.spatialiteFileName = checkFilename(fileName);
         }
 
         if(tableName.equalsIgnoreCase("*")){

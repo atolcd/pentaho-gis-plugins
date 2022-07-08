@@ -49,12 +49,12 @@ public class DXFReader extends AbstractFileReader {
         super(null, geometryFieldName, charsetName);
 
         try {
-            this.dxfFileExist = new File(checkFilename(fileName).getFile()).exists();
+            this.dxfFileExist = new File(checkFilename(fileName)).exists();
 
             if (!this.dxfFileExist) {
                 throw new KettleException("Missing " + fileName + " file");
             } else {
-                this.dxfFileName = checkFilename(fileName).getFile();
+                this.dxfFileName = checkFilename(fileName);
             }
             this.readXData = readXData;
 

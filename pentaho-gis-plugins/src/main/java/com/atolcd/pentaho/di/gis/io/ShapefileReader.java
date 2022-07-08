@@ -34,11 +34,14 @@ import org.geotools.dbffile.DbfFile;
 import org.geotools.shapefile.Shapefile;
 import org.geotools.shapefile.ShapefileHeader;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.trans.steps.xbaseinput.XBase;
 
 import com.atolcd.pentaho.di.gis.io.features.Feature;
 import com.atolcd.pentaho.di.gis.io.features.Field;
 import com.atolcd.pentaho.di.gis.io.features.Field.FieldType;
 import com.atolcd.pentaho.di.gis.utils.GeometryUtils;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -58,18 +61,17 @@ public class ShapefileReader extends AbstractFileReader {
         super(null, geometryFieldName, charsetName);
 
         try {
-
-            this.shpFileExist = new File(checkFilename(fileName).getFile()).exists();
-            this.dbfFileExist = new File(checkFilename(replaceFileExtension(fileName, ".shp", ".dbf")).getFile()).exists();
+            this.shpFileExist = new File(checkFilename(fileName)).exists();
+            this.dbfFileExist = new File(checkFilename(replaceFileExtension(fileName, ".shp", ".dbf"))).exists();
 
             if (!this.shpFileExist) {
                 throw new KettleException("Missing " + fileName + " file");
             } else {
-                this.shpFileName = checkFilename(fileName).getFile();
+                this.shpFileName = checkFilename(fileName);
             }
 
             if (this.dbfFileExist) {
-                this.dbfFileName = checkFilename(replaceFileExtension(fileName, ".shp", ".dbf")).getFile();
+                this.dbfFileName = checkFilename(replaceFileExtension(fileName, ".shp", ".dbf"));
             }
 
             // Entête shapefile
@@ -152,25 +154,37 @@ public class ShapefileReader extends AbstractFileReader {
             shapefile.close();
 
             if (this.dbfFileExist) {
+                
+                XBase xbase = new XBase(null, dbfFileName);
 
-                DbfFile dbfFile = new DbfFile(this.dbfFileName, this.charset);
+                xbase.setDbfFile(dbfFileName);
+                xbase.open();
+
+                DBFReader reader = xbase.getReader();
+                reader.setCharactersetName(this.charset.name());
+                
+                for (int i = 0; i < xbase.getReader().getFieldCount(); i++){
+                    if (reader.getField(i).getDataType() == DBFField.FIELD_TYPE_F){
+                        reader.getField(i).setDataType(DBFField.FIELD_TYPE_N);
+                    }
+                }
                 for (int i = 0; i < features.size(); i++) {
 
-                    byte[] record = dbfFile.GetDbfRec(i);
+                    Object[] record = reader.nextRecord();
+
                     for (int j = 0; j < this.getFields().size() - 1; j++) {
-                        features.get(i).addValue(this.fields.get(j + 1), dbfFile.ParseRecordColumn(record, j));
+                        features.get(i).addValue(this.fields.get(j + 1), record[j]);
                     }
 
                 }
-
-                dbfFile.close();
+                xbase.close();
 
             }
 
         } catch (IOException e) {
-            throw new KettleException("Error reading features" + this.shpFileName, e);
+            throw new KettleException("Error reading features" + this.shpFileName + this.dbfFileName, e);
         } catch (Exception e) {
-            throw new KettleException("Error reading features" + this.shpFileName, e);
+            throw new KettleException("Error reading features" + this.shpFileName + this.dbfFileName, e);
         }
 
         return features;

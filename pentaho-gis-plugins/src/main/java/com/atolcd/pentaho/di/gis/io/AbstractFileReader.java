@@ -24,8 +24,9 @@ package com.atolcd.pentaho.di.gis.io;
 
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,10 +91,10 @@ public abstract class AbstractFileReader implements FileReader {
     }
 
     // Vérification du nom de fichier
-    protected URL checkFilename(String filename) throws KettleException {
+    protected String checkFilename(String filename) throws KettleException {
 
         try {
-            return KettleVFS.getFileObject(filename).getURL();
+            return URLDecoder.decode(KettleVFS.getFileObject(filename).getURL().getFile(), StandardCharsets.UTF_8.name());
 
         } catch (IOException e) {
 

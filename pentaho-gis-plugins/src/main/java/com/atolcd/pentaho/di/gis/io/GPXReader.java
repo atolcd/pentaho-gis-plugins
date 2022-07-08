@@ -47,12 +47,12 @@ public class GPXReader extends AbstractFileReader {
         super(null, geometryFieldName, charsetName);
 
         try {
-            this.gpxFileExist = new File(checkFilename(fileName).getFile()).exists();
+            this.gpxFileExist = new File(checkFilename(fileName)).exists();
 
             if (!this.gpxFileExist) {
                 throw new KettleException("Missing " + fileName + " file");
             } else {
-                this.gpxFileName = checkFilename(fileName).getFile();
+                this.gpxFileName = checkFilename(fileName);
             }
 
             this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));

@@ -51,12 +51,12 @@ public class GeoJSONReader extends AbstractFileReader {
 
         super(null, geometryFieldName, charsetName);
 
-        this.geoJsonFileExist = new File(checkFilename(fileName).getFile()).exists();
+        this.geoJsonFileExist = new File(checkFilename(fileName)).exists();
 
         if (!this.geoJsonFileExist) {
             throw new KettleException("Missing " + fileName + " file");
         } else {
-            this.geoJsonFileName = checkFilename(fileName).getFile();
+            this.geoJsonFileName = checkFilename(fileName);
         }
 
         this.fields.add(new Field(geometryFieldName, FieldType.GEOMETRY, null, null));
